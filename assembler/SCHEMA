@@ -1,0 +1,47 @@
+; COMMENT
+; At the end of lines, ignored
+
+LABEL:
+
+.TEXT   ; Instruction block
+    ; Accumulator addressing
+    INS
+
+    ; Implied addressing
+    INS
+
+    ; Immediate
+    INS #$00                        ; 00 - FF
+
+    ; Absolute
+    INS $0000                       ; 0000 - FFFF
+
+    ; Zero page
+    INS $00                         ; 00 - FF
+
+    ; Relative
+    INS $00                         ; 00 - FF
+
+    ; Absolute Indirect
+    INS ($0000)                     ; 0000 - FFFF
+
+    ; Absolute Indexed with X
+    INS $0000,X                     ; 0000 - FFFF
+
+    ; Absolute Indexed with Y
+    INS $0000,Y                     ; 0000 - FFFF
+
+    ; Zero page Indexed with X
+    INS $00,X                       ; 00 - FF
+
+    ; Zero page Indexed with Y
+    INS $00,Y                       ; 00 - FF
+
+    ; Zero page Indexed Indirect
+    INS ($00,X)                     ; 00 - FF
+
+    ; Zero page Indirect Indexed with Y
+    INS ($00),Y                     ; 00 - FF
+
+.DATA   ; Data block
+000000000000    ; Any bytes
