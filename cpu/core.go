@@ -1,6 +1,8 @@
 package cpu
 
-import "errors"
+import (
+	"errors"
+)
 
 type Core struct {
 	// A 65,536 byte array to fully represent the memory of a 6502.
@@ -169,35 +171,36 @@ func (c *Core) StepOnce() (valid bool) {
 	inst := c.Memory[c.PC]
 	valid = true
 
-	if f, ok := c.execMapNil[inst]; ok {
+	f, fOk := c.execMapNil[inst]
+	g, gOk := c.execMapByte[inst]
+	h, hOk := c.execMapSByte[inst]
+	i, iOk := c.execMapShort[inst]
+
+	switch {
+	case fOk:
 		f()
-		return
-	}
 
-	if g, ok := c.execMapByte[inst]; ok {
+	case gOk:
 		g(c.Memory[c.PC+1])
-		return
-	}
 
-	if h, ok := c.execMapSByte[inst]; ok {
+	case hOk:
 		m := c.Memory[c.PC+1]
 		v := int8(m & 0x7F)
 		if m&0x80 > 0 {
 			v *= -1
 		}
 		h(v)
-		return
-	}
 
-	if i, ok := c.execMapShort[inst]; ok {
-		var l, h byte
-		h = c.Memory[c.PC+1]
-		l = c.Memory[c.PC+2]
-		v := (uint16(h) << 8) | uint16(l)
+	case iOk:
+		var lo, hi byte
+		hi = c.Memory[c.PC+1]
+		lo = c.Memory[c.PC+2]
+		v := (uint16(hi) << 8) | uint16(lo)
 		i(v)
-		return
+
+	default:
+		valid = false
 	}
-	valid = false
 	return
 }
 
