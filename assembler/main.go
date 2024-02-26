@@ -44,21 +44,25 @@ func New() *Assembler {
 	return &Assembler{CurrentLocation: 0x200, Labels: make(map[string]MemLocation6502), processingMode: B_TEXT}
 }
 
+const (
+	INST_PATTERN string = `^([a-z]{3})`
+)
+
 var (
 	Re_Label = regexp.MustCompile(`^[A-Za-z_]\w*:`)
 	Re_Block = regexp.MustCompile(`^\.\w+$`)
 
-	Re_IZPgY     = regexp.MustCompile(`^([a-z]{3})\s+\(\$([0-9a-f]{2})\),y`)
-	Re_IZPgX     = regexp.MustCompile(`^([a-z]{3})\s+\(\$([0-9a-f]{2}),x\)`)
-	Re_IAbs      = regexp.MustCompile(`^([a-z]{3})\s+\(\$([0-9a-f]{4})\)`)
-	Re_AbsY      = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{4}),y`)
-	Re_AbsX      = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{4}),x`)
-	Re_ZPgY      = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{2}),y`)
-	Re_ZPgX      = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{2}),x`)
-	Re_Abs       = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{4})`)
-	Re_OneByte   = regexp.MustCompile(`^([a-z]{3})\s+\$([0-9a-f]{2})`)
-	Re_Literal   = regexp.MustCompile(`^([a-z]{3})\s+#\$([0-9a-f]{2})`)
-	Re_NoOperand = regexp.MustCompile(`^([a-z]{3})`)
+	Re_IZPgY     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2})\),y`)
+	Re_IZPgX     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2}),x\)`)
+	Re_IAbs      = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{4})\)`)
+	Re_AbsY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),y`)
+	Re_AbsX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),x`)
+	Re_ZPgY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),y`)
+	Re_ZPgX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),x`)
+	Re_Abs       = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4})`)
+	Re_OneByte   = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2})`)
+	Re_Literal   = regexp.MustCompile(INST_PATTERN + `\s+#\$([0-9a-f]{2})`)
+	Re_NoOperand = regexp.MustCompile(INST_PATTERN)
 
 	Re_HCF = regexp.MustCompile(`^hcf`)
 
