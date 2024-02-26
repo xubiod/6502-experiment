@@ -250,8 +250,8 @@ func TestArithmeticSBC(t *testing.T) {
 			carryOnSub += 1
 		}
 
-		var pre uint16 = (uint16(right) - uint16(left)) + uint16(carryOnSub)
-		var r byte = byte(pre & 0xFF)
+		var pre = (uint16(right) - uint16(left)) + uint16(carryOnSub)
+		var r = byte(pre & 0xFF)
 
 		if c.A != r {
 			t.Errorf("sbc fail - (%1x - %1x) - answer\texpected %1x\tgot %1x", right, left, r, c.A)

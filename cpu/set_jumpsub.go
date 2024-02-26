@@ -46,7 +46,7 @@ func (c *Core) RTS____i() {
 	c.S++
 	low = c.Memory[0x0100+uint16(c.S)]
 
-	var addr uint16 = (uint16(high) << 8) | uint16(low) + 1
+	var addr = (uint16(high) << 8) | uint16(low) + 1
 
 	c.PC = addr
 }
@@ -63,7 +63,7 @@ func (c *Core) RTI____i() {
 	c.S++
 	lowPC = c.Memory[0x0100+uint16(c.S)]
 
-	var addr uint16 = (uint16(highPC) << 8) | uint16(lowPC) + 1
+	var addr = (uint16(highPC) << 8) | uint16(lowPC) + 1
 
 	c.Flags = flags
 

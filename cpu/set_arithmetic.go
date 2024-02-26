@@ -8,7 +8,7 @@ func (c *Core) adc_impl(middle byte) {
 
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
-	var result uint16 = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
+	var result = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
 
 	c.A = byte(result & 0xFF)
 
@@ -43,7 +43,7 @@ func (c *Core) adc_impl_decimal(middle byte) {
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
 
-	var normResult uint16 = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
+	var normResult = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
 
 	var lo = (u1 & 0x0F) + (u2 & 0x0F) + uint16(c.Flags&FLAG_CARRY)
 	var loCarry = 0
@@ -61,7 +61,7 @@ func (c *Core) adc_impl_decimal(middle byte) {
 		hi = hi & 0x0F
 	}
 
-	var result uint16 = (hi << 4) | lo
+	var result = (hi << 4) | lo
 
 	c.A = byte(result & 0xFF)
 
@@ -100,7 +100,7 @@ func (c *Core) sbc_impl(middle byte) {
 
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
-	var result uint16 = (u1 - u2) + uint16(c.Flags&FLAG_CARRY)
+	var result = (u1 - u2) + uint16(c.Flags&FLAG_CARRY)
 
 	opl := c.A
 
@@ -137,7 +137,7 @@ func (c *Core) sbc_impl_decimal(middle byte) {
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
 
-	var normResult uint16 = (u1 - u2) + uint16(1-c.Flags&FLAG_CARRY)
+	var normResult = (u1 - u2) + uint16(1-c.Flags&FLAG_CARRY)
 
 	opl := c.A
 
@@ -149,7 +149,7 @@ func (c *Core) sbc_impl_decimal(middle byte) {
 		lo = lo & 0x0F
 	}
 
-	var hi = ((u1 & 0xF0) >> 4) - ((u2 & 0xF0) >> 4) - uint16(loBorrow)
+	var hi = ((u1 & 0xF0) >> 4) - ((u2 & 0xF0) >> 4) - loBorrow
 	var hiBorrow = hi & 0b10000000 >> 7
 	hi = hi & 0x0F
 	if hiBorrow > 0 {
@@ -157,7 +157,7 @@ func (c *Core) sbc_impl_decimal(middle byte) {
 		hi = hi & 0x0F
 	}
 
-	var result uint16 = (hi << 4) | lo
+	var result = (hi << 4) | lo
 
 	c.A = byte(result & 0xFF)
 

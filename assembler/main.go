@@ -19,7 +19,7 @@ const (
 )
 
 type Assembler struct {
-	Labels          map[string](MemLocation6502)
+	Labels          map[string]MemLocation6502
 	CurrentLocation MemLocation6502
 	Line            uint16
 
@@ -293,7 +293,7 @@ func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 		for label, labelTo := range a.Labels {
 			if strings.Contains(line, label) {
 				if isRel {
-					var diff int32 = int32(a.CurrentLocation) - int32(labelTo)
+					var diff = int32(a.CurrentLocation) - int32(labelTo)
 
 					if diff > 127 || diff < -128 {
 						err = ErrLabelLocationIllogical

@@ -7,7 +7,7 @@ import (
 type Core struct {
 	// A 65,536 byte array to fully represent the memory of a 6502.
 	//
-	// `0000`-`00FF` is the zero page; `0100`-`01FF` is the stack; `0200`-`FFFF`
+	// `0x0000`-`0x00FF` is the zero page; `0x0100`-`0x01FF` is the stack; `0x0200`-`0xFFFF`
 	// is the general memory of the chip.
 	//
 	// There is no special structure for the stack, it is **entirely managed
@@ -18,21 +18,21 @@ type Core struct {
 	X     byte   // X
 	Y     byte   // Y
 	PC    uint16 // PC - program counter
-	S     uint8  // S - stack pointer; starts at `01FF` and grows down to `0100`
+	S     uint8  // S - stack pointer; starts at `0x01FF` and grows down to `0x0100`
 	Flags byte   // P - status, flags
 
 	Features CoreFeatureFlags
 
 	// The byte -> implementation map for instructions with no operands.
-	execMapNil map[byte](func())
+	execMapNil map[byte]func()
 
 	// The byte -> implementation map for instructions with an unsigned byte as
 	// an operand.
-	execMapByte map[byte](func(uint8))
+	execMapByte map[byte]func(uint8)
 
 	// The byte -> implementation map for instructions with an unsigned short (2
 	// bytes) as an operand.
-	execMapShort map[byte](func(uint16))
+	execMapShort map[byte]func(uint16)
 
 	writingPointer uint16 // The pointer to writing to memory with `*Core.Write()`.
 }
@@ -56,7 +56,7 @@ const (
 	FLAG_NEGATIVE                           // N - Set when the last operation resulted as a negative number.
 )
 
-// Does the calculations for a zero page indirect indexed with Y address to get
+// Does the calculations for a zero-page indirect indexed with Y address to get
 // the valid address.
 func (c *Core) indirectZpY(zp byte) (addr uint16) {
 	var lsb, msb byte
@@ -67,7 +67,7 @@ func (c *Core) indirectZpY(zp byte) (addr uint16) {
 	return
 }
 
-// Does the calculations for a zero page indexed indirect to get the address.
+// Does the calculations for a zero-page indexed indirect to get the address.
 func (c *Core) indirectZpX(zp byte) (addr uint16) {
 	var lsb, msb byte
 	lsb = c.Memory[zp+c.X]
@@ -144,7 +144,7 @@ func (c *Core) prepare() {
 		0xF9: c.SBC___ay, 0xFD: c.SBC___ax, 0xFE: c.INC___ax,
 	}
 
-	c.SetWriterPtr(0x0200)
+	_ = c.SetWriterPtr(0x0200)
 }
 
 // Does a single step of execution. If at an invalid instruction, the program
@@ -192,7 +192,7 @@ func (c *Core) SetWriterPtr(value uint16) (err error) {
 }
 
 // Writes the contents of the byte slice to general memory, always stopping at
-// the end of general memory (`xFFFF`); will return the amount of bytes written.
+// the end of general memory (`0xFFFF`); will return the amount of bytes written.
 //
 // This uses the `*Core.writingPointer` which can be moved with `*Core.SetWriterPtr`.
 func (c *Core) Write(what []byte) (n int) {
