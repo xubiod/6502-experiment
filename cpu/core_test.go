@@ -42,9 +42,6 @@ func TestExists(t *testing.T) {
 		_, ok = c.execMapByte[byte(i)]
 		finalOk = finalOk || ok
 
-		_, ok = c.execMapSByte[byte(i)]
-		finalOk = finalOk || ok
-
 		_, ok = c.execMapShort[byte(i)]
 		finalOk = finalOk || ok
 

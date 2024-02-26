@@ -26,10 +26,6 @@ type Core struct {
 	// The byte -> implementation map for instructions with no operands.
 	execMapNil map[byte](func())
 
-	// The byte -> implementation map for instructions with a signed byte as an
-	// operand.
-	execMapSByte map[byte](func(int8))
-
 	// The byte -> implementation map for instructions with an unsigned byte as
 	// an operand.
 	execMapByte map[byte](func(uint8))
@@ -110,34 +106,23 @@ func (c *Core) prepare() {
 		0xF8: c.SED____i,
 	}
 
-	c.execMapSByte = map[byte]func(int8){
-		0x10: c.BPL__rel,
-		0x30: c.BMI__rel,
-		0x50: c.BVC__rel,
-		0x70: c.BVS__rel,
-		0x90: c.BCC__rel,
-		0xB0: c.BCS__rel,
-		0xD0: c.BNE__rel,
-		0xF0: c.BEQ__rel,
-	}
-
 	c.execMapByte = map[byte]func(uint8){
 		0x01: c.ORA_IZPx, 0x05: c.ORA__ZPg, 0x06: c.ASL__ZPg, 0x09: c.ORA__Imm,
-		0x11: c.ORA_IZPy, 0x15: c.ORA__ZPx, 0x16: c.ASL__ZPx,
+		0x10: c.BPL__rel, 0x11: c.ORA_IZPy, 0x15: c.ORA__ZPx, 0x16: c.ASL__ZPx,
 		0x21: c.AND_IZPx, 0x24: c.BIT__ZPg, 0x25: c.AND__ZPg, 0x26: c.ROL__ZPg, 0x29: c.AND__Imm,
-		0x31: c.AND_IZPy, 0x35: c.AND__ZPx, 0x36: c.ROL__ZPx,
+		0x30: c.BMI__rel, 0x31: c.AND_IZPy, 0x35: c.AND__ZPx, 0x36: c.ROL__ZPx,
 		0x41: c.EOR_IZPx, 0x45: c.EOR__ZPg, 0x46: c.LSR__ZPg, 0x49: c.EOR__Imm,
-		0x51: c.EOR_IZPy, 0x55: c.EOR__ZPx, 0x56: c.LSR__ZPx,
+		0x50: c.BVC__rel, 0x51: c.EOR_IZPy, 0x55: c.EOR__ZPx, 0x56: c.LSR__ZPx,
 		0x61: c.ADC_IZPx, 0x65: c.ADC__ZPg, 0x66: c.ROR__ZPg, 0x69: c.ADC__Imm,
-		0x71: c.ADC_IZPy, 0x75: c.ADC__ZPx, 0x76: c.ROR__ZPx,
+		0x70: c.BVS__rel, 0x71: c.ADC_IZPy, 0x75: c.ADC__ZPx, 0x76: c.ROR__ZPx,
 		0x81: c.STA_IZPx, 0x84: c.STY__ZPg, 0x85: c.STA__ZPg, 0x86: c.STX__ZPg,
-		0x91: c.STA_IZPy, 0x94: c.STA__ZPx, 0x95: c.STA__ZPx, 0x96: c.STX__ZPy,
+		0x90: c.BCC__rel, 0x91: c.STA_IZPy, 0x94: c.STA__ZPx, 0x95: c.STA__ZPx, 0x96: c.STX__ZPy,
 		0xA0: c.LDY__Imm, 0xA1: c.LDA_IZPx, 0xA2: c.LDX__Imm, 0xA4: c.LDY__ZPg, 0xA5: c.LDA__ZPg, 0xA6: c.LDX__ZPg, 0xA9: c.LDA__Imm,
-		0xB1: c.LDA_IZPy, 0xB4: c.LDY__ZPx, 0xB5: c.LDA__ZPx, 0xB6: c.LDX__ZPy,
+		0xB0: c.BCS__rel, 0xB1: c.LDA_IZPy, 0xB4: c.LDY__ZPx, 0xB5: c.LDA__ZPx, 0xB6: c.LDX__ZPy,
 		0xC0: c.CPY__Imm, 0xC1: c.CMP_IZPx, 0xC4: c.CPY__ZPg, 0xC5: c.CMP__ZPg, 0xC6: c.DEC__ZPg, 0xC9: c.CMP__Imm,
-		0xD1: c.CMP_IZPy, 0xD5: c.CMP__ZPx, 0xD6: c.DEC__ZPx,
+		0xD0: c.BNE__rel, 0xD1: c.CMP_IZPy, 0xD5: c.CMP__ZPx, 0xD6: c.DEC__ZPx,
 		0xE0: c.CPX__Imm, 0xE1: c.SBC_IZPx, 0xE4: c.CPX__ZPg, 0xE5: c.SBC__Zpg, 0xE6: c.INC__ZPg, 0xE9: c.SBC__Imm,
-		0xF1: c.SBC_IZPy, 0xF5: c.SBC__ZPx, 0xF6: c.INC__ZPx,
+		0xF0: c.BEQ__rel, 0xF1: c.SBC_IZPy, 0xF5: c.SBC__ZPx, 0xF6: c.INC__ZPx,
 	}
 
 	c.execMapShort = map[byte]func(uint16){
@@ -173,8 +158,7 @@ func (c *Core) StepOnce() (valid bool) {
 
 	f, fOk := c.execMapNil[inst]
 	g, gOk := c.execMapByte[inst]
-	h, hOk := c.execMapSByte[inst]
-	i, iOk := c.execMapShort[inst]
+	h, hOk := c.execMapShort[inst]
 
 	switch {
 	case fOk:
@@ -184,19 +168,11 @@ func (c *Core) StepOnce() (valid bool) {
 		g(c.Memory[c.PC+1])
 
 	case hOk:
-		m := c.Memory[c.PC+1]
-		v := int8(m & 0x7F)
-		if m&0x80 > 0 {
-			v *= -1
-		}
-		h(v)
-
-	case iOk:
 		var lo, hi byte
 		hi = c.Memory[c.PC+1]
 		lo = c.Memory[c.PC+2]
 		v := (uint16(hi) << 8) | uint16(lo)
-		i(v)
+		h(v)
 
 	default:
 		valid = false
