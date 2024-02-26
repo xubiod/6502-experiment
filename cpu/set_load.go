@@ -9,7 +9,7 @@ func (c *Core) ld_impl(to *byte, store byte) {
 		c.Flags = c.Flags & ^FLAG_ZERO
 	}
 
-	if *to&0b1000000 > 0 {
+	if *to&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
 	} else {
 		c.Flags = c.Flags & ^FLAG_NEGATIVE

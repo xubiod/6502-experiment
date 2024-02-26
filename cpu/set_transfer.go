@@ -95,15 +95,15 @@ func (c *Core) TXS____i() {
 
 	c.S = c.X
 
-	if c.A == 0 {
-		c.Flags = c.Flags | FLAG_ZERO
-	} else {
-		c.Flags = c.Flags & ^FLAG_ZERO
-	}
+	// if c.A == 0 {
+	// 	c.Flags = c.Flags | FLAG_ZERO
+	// } else {
+	// 	c.Flags = c.Flags & ^FLAG_ZERO
+	// }
 
-	if c.A&0b10000000 > 0 {
-		c.Flags = c.Flags | FLAG_NEGATIVE
-	} else {
-		c.Flags = c.Flags & ^FLAG_NEGATIVE
-	}
+	// if c.A&0b10000000 > 0 {
+	// 	c.Flags = c.Flags | FLAG_NEGATIVE
+	// } else {
+	// 	c.Flags = c.Flags & ^FLAG_NEGATIVE
+	// }
 }
