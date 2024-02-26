@@ -347,9 +347,6 @@ func stdProcedure(c *Core, program []byte) {
 
 	c.PC = 0x0200
 
-	executing := true
-
-	for c.Memory[c.PC] != 0x00 && executing {
-		executing = c.StepOnce()
+	for c.Memory[c.PC] != 0x00 && c.StepOnce() {
 	}
 }
