@@ -156,23 +156,21 @@ func (c *Core) StepOnce() (valid bool) {
 	inst := c.Memory[c.PC]
 	valid = true
 
-	f, fOk := c.execMapNil[inst]
-	g, gOk := c.execMapByte[inst]
-	h, hOk := c.execMapShort[inst]
+	f, fOk := c.execMapByte[inst]
+	g, gOk := c.execMapShort[inst]
+	h, hOk := c.execMapNil[inst]
 
 	switch {
 	case fOk:
-		f()
+		f(c.Memory[c.PC+1])
 
 	case gOk:
-		g(c.Memory[c.PC+1])
+		hi, lo := c.Memory[c.PC+1], c.Memory[c.PC+2]
+		v := (uint16(hi) << 8) | uint16(lo)
+		g(v)
 
 	case hOk:
-		var lo, hi byte
-		hi = c.Memory[c.PC+1]
-		lo = c.Memory[c.PC+2]
-		v := (uint16(hi) << 8) | uint16(lo)
-		h(v)
+		h()
 
 	default:
 		valid = false
