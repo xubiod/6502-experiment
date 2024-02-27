@@ -1,5 +1,8 @@
 package cpu
 
+// This is the implementation of the ASL instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) asl_impl(loc *byte) {
 	var shouldCarry = *loc & 0x80
 
@@ -24,6 +27,9 @@ func (c *Core) asl_impl(loc *byte) {
 	}
 }
 
+// This is the implementation of the LSR instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) lsr_impl(loc *byte) {
 	var shouldCarry = *loc & 0x01
 
@@ -48,6 +54,9 @@ func (c *Core) lsr_impl(loc *byte) {
 	}
 }
 
+// This is the implementation of the ROL instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) rol_impl(loc *byte) {
 	var futureCarry = *loc & 0b10000000
 
@@ -72,6 +81,9 @@ func (c *Core) rol_impl(loc *byte) {
 	}
 }
 
+// This is the implementation of the ROR instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) ror_impl(loc *byte) {
 	var futureCarry = *loc & 0b00000001
 

@@ -1,5 +1,8 @@
 package cpu
 
+// This is the implementation of the AND instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) and_impl(with byte) {
 	c.A = c.A & with
 
@@ -16,6 +19,9 @@ func (c *Core) and_impl(with byte) {
 	}
 }
 
+// This is the implementation of the ORA instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) ora_impl(with byte) {
 	c.A = c.A | with
 
@@ -32,6 +38,9 @@ func (c *Core) ora_impl(with byte) {
 	}
 }
 
+// This is the implementation of the EOR instructions.
+//
+// This will change the flags of the Core it's run in.
 func (c *Core) eor_impl(with byte) {
 	c.A = c.A ^ with
 

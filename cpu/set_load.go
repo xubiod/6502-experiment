@@ -1,5 +1,9 @@
 package cpu
 
+// This is the implementation of the load instructions.
+//
+// This will change the flags of the Core it's run in, and will change the value
+// at the pointer passed into it.
 func (c *Core) ld_impl(to *byte, store byte) {
 	*to = store
 

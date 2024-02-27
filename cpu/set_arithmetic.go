@@ -1,5 +1,8 @@
 package cpu
 
+// The implementation of the add with carry.
+//
+// This will change flags in the Core it's run in.
 func (c *Core) adc_impl(middle byte) {
 	if c.Features.DecimalModeImplemented && c.Flags&FLAG_DECIMAL > 0 {
 		c.adc_impl_decimal(middle)
@@ -39,6 +42,9 @@ func (c *Core) adc_impl(middle byte) {
 	}
 }
 
+// The implementation of the add with carry using BCD.
+//
+// This will change flags in the Core it's run in.
 func (c *Core) adc_impl_decimal(middle byte) {
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
@@ -92,6 +98,9 @@ func (c *Core) adc_impl_decimal(middle byte) {
 	}
 }
 
+// The implementation of the subtract with borrow.
+//
+// This will change flags in the Core it's run in.
 func (c *Core) sbc_impl(middle byte) {
 	if c.Features.DecimalModeImplemented && c.Flags&FLAG_DECIMAL > 0 {
 		c.sbc_impl_decimal(middle)
@@ -133,6 +142,9 @@ func (c *Core) sbc_impl(middle byte) {
 	}
 }
 
+// The implementation of the subtract with borrow using BCD.
+//
+// This will change flags in the Core it's run in.
 func (c *Core) sbc_impl_decimal(middle byte) {
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)

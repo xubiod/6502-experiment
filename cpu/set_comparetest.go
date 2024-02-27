@@ -1,5 +1,9 @@
 package cpu
 
+// This is the implementation of what the `CMP`, `CPX`, and `CPY` instructions
+// do.
+//
+// This will change the flags in the Core it's run in.
 func (c *Core) cmp_impl(what, with byte) {
 	if what == with {
 		c.Flags = c.Flags & ^FLAG_NEGATIVE
@@ -16,6 +20,9 @@ func (c *Core) cmp_impl(what, with byte) {
 	}
 }
 
+// This is the implementation of what the `BIT` instruction does.
+//
+// This will change the flags in the Core it's run in.
 func (c *Core) bit_impl(with byte) {
 	var r = c.A & with
 

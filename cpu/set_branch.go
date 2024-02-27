@@ -1,5 +1,9 @@
 package cpu
 
+// Takes a unsigned 8 bit integer and mangles it into a signed 8 bit integer.
+//
+// The result is converted into a unsigned short to add to the program counter
+// by the caller.
 func branchVal(i uint8) (o uint16) {
 	m := int8(i & 0x7F)
 	if i&0b10000000 > 0 {
