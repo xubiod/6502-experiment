@@ -82,13 +82,13 @@ func (c *Core) TSX____i() {
 
 	c.X = c.S
 
-	if c.Y == 0 {
+	if c.X == 0 {
 		c.Flags = c.Flags | FLAG_ZERO
 	} else {
 		c.Flags = c.Flags & ^FLAG_ZERO
 	}
 
-	if c.Y&0b10000000 > 0 {
+	if c.X&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
 	} else {
 		c.Flags = c.Flags & ^FLAG_NEGATIVE
