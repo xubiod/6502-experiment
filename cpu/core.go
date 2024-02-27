@@ -26,8 +26,8 @@ type Core struct {
 	// The byte -> implementation map for instructions with no operands.
 	execMapNil map[byte]func()
 
-	// The byte -> implementation map for instructions with an unsigned byte as
-	// an operand.
+	// The byte -> implementation map for instructions with a byte as an operand.
+	// Signed or not is instruction dependent.
 	execMapByte map[byte]func(uint8)
 
 	// The byte -> implementation map for instructions with an unsigned short (2
