@@ -1,5 +1,6 @@
 package cpu
 
+// Break - Implied
 func (c *Core) BRK____i() {
 	c.PC += 2
 
@@ -22,6 +23,7 @@ func (c *Core) BRK____i() {
 	c.PC = (uint16(c.Memory[0xFFFF]) << 8) | uint16(c.Memory[0xFFFE])
 }
 
+// No Operation - Implied
 func (c *Core) NOP____i() {
 	c.PC += 1
 }

@@ -188,20 +188,50 @@ func (c *Core) sbc_impl_decimal(middle byte) {
 	}
 }
 
-func (c *Core) ADC____a(addr uint16)  { c.PC += 3; c.adc_impl(c.Memory[addr]) }              // `6D` - ADC a
-func (c *Core) ADC___ax(addr uint16)  { c.PC += 3; c.adc_impl(c.Memory[addr+uint16(c.X)]) }  // `7D` - ADC a, x
-func (c *Core) ADC___ay(addr uint16)  { c.PC += 3; c.adc_impl(c.Memory[addr+uint16(c.Y)]) }  // `79` - ADC a, y
-func (c *Core) ADC__Imm(literal byte) { c.PC += 2; c.adc_impl(literal) }                     // `69` - ADC #
-func (c *Core) ADC__ZPg(zp byte)      { c.PC += 2; c.adc_impl(c.Memory[zp]) }                // `65` - ADC zp
-func (c *Core) ADC_IZPx(zp byte)      { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpX(zp)]) } // `61` - ADC (zp,x)
-func (c *Core) ADC__ZPx(zp byte)      { c.PC += 2; c.adc_impl(c.Memory[zp+c.X]) }            // `75` - ADC zp, x
-func (c *Core) ADC_IZPy(zp byte)      { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpY(zp)]) } // `71` - ADC (zp), y
+// Add with Carry - Absolute
+func (c *Core) ADC____a(addr uint16) { c.PC += 3; c.adc_impl(c.Memory[addr]) }
 
-func (c *Core) SBC____a(addr uint16)  { c.PC += 3; c.sbc_impl(c.Memory[addr]) }              // `ED` - SDC a
-func (c *Core) SBC___ax(addr uint16)  { c.PC += 3; c.sbc_impl(c.Memory[addr+uint16(c.X)]) }  // `FD` - SDC a, x
-func (c *Core) SBC___ay(addr uint16)  { c.PC += 3; c.sbc_impl(c.Memory[addr+uint16(c.Y)]) }  // `F9` - SDC a, y
-func (c *Core) SBC__Imm(literal byte) { c.PC += 2; c.sbc_impl(literal) }                     // `E9` - SDC #
-func (c *Core) SBC__Zpg(zp byte)      { c.PC += 2; c.sbc_impl(c.Memory[zp]) }                // `E5` - SDC zp
-func (c *Core) SBC_IZPx(zp byte)      { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpX(zp)]) } // `E1` - SDC (zp, x)
-func (c *Core) SBC__ZPx(zp byte)      { c.PC += 2; c.sbc_impl(c.Memory[zp+c.X]) }            // `F5` - SDC zp, x
-func (c *Core) SBC_IZPy(zp byte)      { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpY(zp)]) } // `F1` - SDC (zp), y
+// Add with Carry - Absolute indexed with X
+func (c *Core) ADC___ax(addr uint16) { c.PC += 3; c.adc_impl(c.Memory[addr+uint16(c.X)]) }
+
+// Add with Carry - Absolute indexed with Y
+func (c *Core) ADC___ay(addr uint16) { c.PC += 3; c.adc_impl(c.Memory[addr+uint16(c.Y)]) }
+
+// Add with Carry - Immediate
+func (c *Core) ADC__Imm(literal byte) { c.PC += 2; c.adc_impl(literal) }
+
+// Add with Carry - Zero Page
+func (c *Core) ADC__ZPg(zp byte) { c.PC += 2; c.adc_impl(c.Memory[zp]) }
+
+// Add with Carry - Zero Page Indexed Indirect
+func (c *Core) ADC_IZPx(zp byte) { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpX(zp)]) }
+
+// Add with Carry - Zero Page indexed with X
+func (c *Core) ADC__ZPx(zp byte) { c.PC += 2; c.adc_impl(c.Memory[zp+c.X]) }
+
+// Add with Carry - Zero Page Indirect Indexed with Y
+func (c *Core) ADC_IZPy(zp byte) { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpY(zp)]) }
+
+// Subtract with Borrow - Absolute
+func (c *Core) SBC____a(addr uint16) { c.PC += 3; c.sbc_impl(c.Memory[addr]) }
+
+// Subtract with Borrow - Absolute indexed with X
+func (c *Core) SBC___ax(addr uint16) { c.PC += 3; c.sbc_impl(c.Memory[addr+uint16(c.X)]) }
+
+// Subtract with Borrow - Absolute indexed with Y
+func (c *Core) SBC___ay(addr uint16) { c.PC += 3; c.sbc_impl(c.Memory[addr+uint16(c.Y)]) }
+
+// Subtract with Borrow - Immediate
+func (c *Core) SBC__Imm(literal byte) { c.PC += 2; c.sbc_impl(literal) }
+
+// Subtract with Borrow - Zero Page
+func (c *Core) SBC__Zpg(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[zp]) }
+
+// Subtract with Borrow - Zero Page Indexed Indirect
+func (c *Core) SBC_IZPx(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpX(zp)]) }
+
+// Subtract with Borrow - Zero Page indexed with X
+func (c *Core) SBC__ZPx(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[zp+c.X]) }
+
+// Subtract with Borrow - Zero Page Indirect Indexed with Y
+func (c *Core) SBC_IZPy(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpY(zp)]) }

@@ -1,9 +1,11 @@
 package cpu
 
+// Jump - Absolute
 func (c *Core) JMP____a(addr uint16) {
 	c.PC = addr
 }
 
+// Jump - Indirect Absolute
 func (c *Core) JMP___Ia(addrIndirect uint16) {
 	var lsb, msb, page, within byte
 	var addrL, addrM uint16
@@ -20,6 +22,7 @@ func (c *Core) JMP___Ia(addrIndirect uint16) {
 	c.PC = (uint16(msb) << 8) | uint16(lsb)
 }
 
+// Jump + Push Return Address to Stack - Absolute
 func (c *Core) JSR____a(addr uint16) {
 	var nextInstr = c.PC + 2
 
@@ -37,6 +40,7 @@ func (c *Core) JSR____a(addr uint16) {
 	c.PC = addr
 }
 
+// Return from Subroutine - Implied
 func (c *Core) RTS____i() {
 	var high, low byte
 
@@ -51,6 +55,7 @@ func (c *Core) RTS____i() {
 	c.PC = addr
 }
 
+// Return from Interrupt - Implied
 func (c *Core) RTI____i() {
 	var highPC, lowPC, flags byte
 

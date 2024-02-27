@@ -1,5 +1,6 @@
 package cpu
 
+// Transfer Accumulator to X - Implied
 func (c *Core) TAX____i() {
 	c.PC += 1
 
@@ -18,6 +19,7 @@ func (c *Core) TAX____i() {
 	}
 }
 
+// Transfer X to Accumulator - Implied
 func (c *Core) TXA____i() {
 	c.PC += 1
 
@@ -36,6 +38,7 @@ func (c *Core) TXA____i() {
 	}
 }
 
+// Transfer Accumulator to Y - Implied
 func (c *Core) TAY____i() {
 	c.PC += 1
 
@@ -54,6 +57,7 @@ func (c *Core) TAY____i() {
 	}
 }
 
+// Transfer Y to Accumulator - Implied
 func (c *Core) TYA____i() {
 	c.PC += 1
 
@@ -72,6 +76,7 @@ func (c *Core) TYA____i() {
 	}
 }
 
+// Transfer Stack Pointer to X - Implied
 func (c *Core) TSX____i() {
 	c.PC += 1
 
@@ -90,6 +95,7 @@ func (c *Core) TSX____i() {
 	}
 }
 
+// Transfer X to Stack Pointer - Implied
 func (c *Core) TXS____i() {
 	c.PC += 1
 
@@ -100,7 +106,7 @@ func (c *Core) TXS____i() {
 	// } else {
 	// 	c.Flags = c.Flags & ^FLAG_ZERO
 	// }
-
+	//
 	// if c.A&0b10000000 > 0 {
 	// 	c.Flags = c.Flags | FLAG_NEGATIVE
 	// } else {

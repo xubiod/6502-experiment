@@ -36,16 +36,38 @@ func (c *Core) dec_impl(where *byte) {
 	}
 }
 
-func (c *Core) INC____a(addr uint16) { c.PC += 3; c.inc_impl(&c.Memory[addr]) }             // `EE` - INC a
-func (c *Core) INC___ax(addr uint16) { c.PC += 3; c.inc_impl(&c.Memory[addr+uint16(c.X)]) } // `FE` - INC a, x
-func (c *Core) INC__ZPg(zp byte)     { c.PC += 2; c.inc_impl(&c.Memory[zp]) }               // `E6` - INC zp
-func (c *Core) INC__ZPx(zp byte)     { c.PC += 2; c.inc_impl(&c.Memory[zp+c.X]) }           // `F6` - INC zp, x
-func (c *Core) INX____i()            { c.PC += 1; c.inc_impl(&c.X) }                        // `E8` - INX
-func (c *Core) INY____i()            { c.PC += 1; c.inc_impl(&c.Y) }                        // `C8` - INY
+// Increment Memory by One - Absolute
+func (c *Core) INC____a(addr uint16) { c.PC += 3; c.inc_impl(&c.Memory[addr]) }
 
-func (c *Core) DEC____a(addr uint16) { c.PC += 3; c.dec_impl(&c.Memory[addr]) }             // `CE` - DEC a
-func (c *Core) DEC___ax(addr uint16) { c.PC += 3; c.dec_impl(&c.Memory[addr+uint16(c.X)]) } // `DE` - DEC a, x
-func (c *Core) DEC__ZPg(zp byte)     { c.PC += 2; c.dec_impl(&c.Memory[zp]) }               // `C6` - DEC zp
-func (c *Core) DEC__ZPx(zp byte)     { c.PC += 2; c.dec_impl(&c.Memory[zp+c.X]) }           // `D6` - DEC zp, x
-func (c *Core) DEX____i()            { c.PC += 1; c.dec_impl(&c.X) }                        // `CA` - DEX
-func (c *Core) DEY____i()            { c.PC += 1; c.dec_impl(&c.Y) }                        // `88` - DEY
+// Increment Memory by One - Absolute indexed with X
+func (c *Core) INC___ax(addr uint16) { c.PC += 3; c.inc_impl(&c.Memory[addr+uint16(c.X)]) }
+
+// Increment Memory by One - Zero Page
+func (c *Core) INC__ZPg(zp byte) { c.PC += 2; c.inc_impl(&c.Memory[zp]) }
+
+// Increment Memory by One - Zero Page indexed with X
+func (c *Core) INC__ZPx(zp byte) { c.PC += 2; c.inc_impl(&c.Memory[zp+c.X]) }
+
+// Increment X by One - Implied
+func (c *Core) INX____i() { c.PC += 1; c.inc_impl(&c.X) }
+
+// Increment Y by One - Implied
+func (c *Core) INY____i() { c.PC += 1; c.inc_impl(&c.Y) }
+
+// Decrement Memory by One - Absolute
+func (c *Core) DEC____a(addr uint16) { c.PC += 3; c.dec_impl(&c.Memory[addr]) }
+
+// Decrement Memory by One - Absolute indexed with X
+func (c *Core) DEC___ax(addr uint16) { c.PC += 3; c.dec_impl(&c.Memory[addr+uint16(c.X)]) }
+
+// Decrement Memory by One - Zero Page
+func (c *Core) DEC__ZPg(zp byte) { c.PC += 2; c.dec_impl(&c.Memory[zp]) }
+
+// Decrement Memory by One - Zero Page indexed with X
+func (c *Core) DEC__ZPx(zp byte) { c.PC += 2; c.dec_impl(&c.Memory[zp+c.X]) }
+
+// Decrement X by One - Implied
+func (c *Core) DEX____i() { c.PC += 1; c.dec_impl(&c.X) }
+
+// Decrement Y by One - Implied
+func (c *Core) DEY____i() { c.PC += 1; c.dec_impl(&c.Y) }

@@ -1,5 +1,6 @@
 package cpu
 
+// Push Accumulator to Stack - Implied
 func (c *Core) PHA____i() {
 	c.PC += 1
 
@@ -7,6 +8,7 @@ func (c *Core) PHA____i() {
 	c.S--
 }
 
+// Pull Accumulator from Stack - Implied
 func (c *Core) PLA____i() {
 	c.PC += 1
 
@@ -26,6 +28,7 @@ func (c *Core) PLA____i() {
 	}
 }
 
+// Push Processor State to Stack - Implied
 func (c *Core) PHP____i() {
 	c.PC += 1
 
@@ -33,6 +36,7 @@ func (c *Core) PHP____i() {
 	c.S--
 }
 
+// Pull Processor State from Stack - Implied
 func (c *Core) PLP____i() {
 	c.PC += 1
 
