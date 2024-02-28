@@ -2,8 +2,8 @@ package cpu
 
 // The implementation of the increment instructions.
 //
-// This will change the flags of the of the Core it's run in, and will change the
-// value at the pointer passed into it.
+// This will change the flags of the Core it's run in, and will change the value
+// at the pointer passed into it.
 func (c *Core) inc_impl(where *byte) {
 	*where++
 
@@ -24,8 +24,8 @@ func (c *Core) inc_impl(where *byte) {
 
 // The implementation of the decrement instructions.
 //
-// This will change the flags of the of the Core it's run in, and will change the
-// value at the pointer passed into it.
+// This will change the flags of the Core it's run in, and will change the value
+// at the pointer passed into it.
 func (c *Core) dec_impl(where *byte) {
 	*where--
 
