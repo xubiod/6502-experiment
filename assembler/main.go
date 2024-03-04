@@ -49,22 +49,22 @@ const (
 )
 
 var (
-	Re_Label = regexp.MustCompile(`^[A-Za-z_]\w*:`)
-	Re_Block = regexp.MustCompile(`^\.\w+$`)
+	reLabel = regexp.MustCompile(`^[A-Za-z_]\w*:`)
+	reBlock = regexp.MustCompile(`^\.\w+$`)
 
-	Re_IZPgY     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2})\),y`)
-	Re_IZPgX     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2}),x\)`)
-	Re_IAbs      = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{4})\)`)
-	Re_AbsY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),y`)
-	Re_AbsX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),x`)
-	Re_ZPgY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),y`)
-	Re_ZPgX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),x`)
-	Re_Abs       = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4})`)
-	Re_OneByte   = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2})`)
-	Re_Literal   = regexp.MustCompile(INST_PATTERN + `\s+#\$([0-9a-f]{2})`)
-	Re_NoOperand = regexp.MustCompile(INST_PATTERN)
+	reIZPgY     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2})\),y`)
+	reIZPgX     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2}),x\)`)
+	reIAbs      = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{4})\)`)
+	reAbsY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),y`)
+	reAbsX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),x`)
+	reZPgY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),y`)
+	reZPgX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),x`)
+	reAbs       = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4})`)
+	reOneByte   = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2})`)
+	reLiteral   = regexp.MustCompile(INST_PATTERN + `\s+#\$([0-9a-f]{2})`)
+	reNoOperand = regexp.MustCompile(INST_PATTERN)
 
-	Re_HCF = regexp.MustCompile(`^hcf`)
+	reHCF = regexp.MustCompile(`^hcf`)
 
 	allWhitespace = regexp.MustCompile(`\s`)
 )
@@ -195,7 +195,7 @@ func (a *Assembler) PreprocessLine(line string) {
 		return
 	}
 
-	if Re_Label.MatchString(line) {
+	if reLabel.MatchString(line) {
 		line = strings.TrimSpace(line)
 		line = strings.Trim(line, ":")
 		a.Labels[line] = a.CurrentLocation
@@ -223,15 +223,15 @@ func (a *Assembler) PreprocessLine(line string) {
 	line = strings.TrimSpace(strings.ToLower(line))
 
 	switch {
-	case Re_IZPgY.MatchString(line), Re_IZPgX.MatchString(line), Re_ZPgY.MatchString(line),
-		Re_ZPgX.MatchString(line), Re_OneByte.MatchString(line), Re_Literal.MatchString(line):
+	case reIZPgY.MatchString(line), reIZPgX.MatchString(line), reZPgY.MatchString(line),
+		reZPgX.MatchString(line), reOneByte.MatchString(line), reLiteral.MatchString(line):
 		a.CurrentLocation += 2
 
-	case Re_IAbs.MatchString(line), Re_AbsY.MatchString(line), Re_AbsX.MatchString(line),
-		Re_Abs.MatchString(line):
+	case reIAbs.MatchString(line), reAbsY.MatchString(line), reAbsX.MatchString(line),
+		reAbs.MatchString(line):
 		a.CurrentLocation += 3
 
-	case Re_NoOperand.MatchString(line):
+	case reNoOperand.MatchString(line):
 		a.CurrentLocation++
 
 	default:
@@ -256,7 +256,7 @@ func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 		return
 	}
 
-	if Re_Block.MatchString(strings.TrimSpace(line)) {
+	if reBlock.MatchString(strings.TrimSpace(line)) {
 		line = strings.TrimSpace(strings.ToLower(line))
 
 		switch line {
@@ -273,7 +273,7 @@ func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 		return
 	}
 
-	if Re_Label.MatchString(line) {
+	if reLabel.MatchString(line) {
 		return
 	}
 
@@ -313,56 +313,56 @@ func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 		line = strings.TrimSpace(strings.ToLower(line))
 
 		switch {
-		case Re_IZPgY.MatchString(line):
-			subs = Re_IZPgY.FindStringSubmatch(line)
+		case reIZPgY.MatchString(line):
+			subs = reIZPgY.FindStringSubmatch(line)
 			err = operationByte(subs, &TB_IZPgY, &out, &a.CurrentLocation)
 
-		case Re_IZPgX.MatchString(line):
-			subs = Re_IZPgX.FindStringSubmatch(line)
+		case reIZPgX.MatchString(line):
+			subs = reIZPgX.FindStringSubmatch(line)
 			err = operationByte(subs, &TB_IZPgX, &out, &a.CurrentLocation)
 
-		case Re_IAbs.MatchString(line):
-			subs = Re_IAbs.FindStringSubmatch(line)
+		case reIAbs.MatchString(line):
+			subs = reIAbs.FindStringSubmatch(line)
 			err = operationShort(subs, &TB_IAbs, &out, &a.CurrentLocation)
 
-		case Re_AbsY.MatchString(line):
-			subs = Re_AbsY.FindStringSubmatch(line)
+		case reAbsY.MatchString(line):
+			subs = reAbsY.FindStringSubmatch(line)
 			err = operationShort(subs, &TB_AbsY, &out, &a.CurrentLocation)
 
-		case Re_AbsX.MatchString(line):
-			subs = Re_AbsX.FindStringSubmatch(line)
+		case reAbsX.MatchString(line):
+			subs = reAbsX.FindStringSubmatch(line)
 			err = operationShort(subs, &TB_AbsX, &out, &a.CurrentLocation)
 
-		case Re_ZPgY.MatchString(line):
-			subs = Re_ZPgY.FindStringSubmatch(line)
+		case reZPgY.MatchString(line):
+			subs = reZPgY.FindStringSubmatch(line)
 			err = operationByte(subs, &TB_ZPgY, &out, &a.CurrentLocation)
 
-		case Re_ZPgX.MatchString(line):
-			subs = Re_ZPgX.FindStringSubmatch(line)
+		case reZPgX.MatchString(line):
+			subs = reZPgX.FindStringSubmatch(line)
 			err = operationByte(subs, &TB_ZPgX, &out, &a.CurrentLocation)
 
-		case Re_Abs.MatchString(line):
-			subs = Re_Abs.FindStringSubmatch(line)
+		case reAbs.MatchString(line):
+			subs = reAbs.FindStringSubmatch(line)
 			err = operationShort(subs, &TB_Abs, &out, &a.CurrentLocation)
 
-		case Re_OneByte.MatchString(line):
-			subs = Re_OneByte.FindStringSubmatch(line)
+		case reOneByte.MatchString(line):
+			subs = reOneByte.FindStringSubmatch(line)
 			if isRel {
 				err = operationByte(subs, &TB_Relative, &out, &a.CurrentLocation)
 			} else {
 				err = operationByte(subs, &TB_Zp, &out, &a.CurrentLocation)
 			}
 
-		case Re_Literal.MatchString(line):
-			subs = Re_Literal.FindStringSubmatch(line)
+		case reLiteral.MatchString(line):
+			subs = reLiteral.FindStringSubmatch(line)
 			err = operationByte(subs, &TB_Literal, &out, &a.CurrentLocation)
 
-		case Re_HCF.MatchString(line):
+		case reHCF.MatchString(line):
 			err = ErrHCF
 			return
 
-		case Re_NoOperand.MatchString(line):
-			subs = Re_NoOperand.FindStringSubmatch(line)
+		case reNoOperand.MatchString(line):
+			subs = reNoOperand.FindStringSubmatch(line)
 			op, ok := TB_NoOperand[subs[0]]
 			if !ok {
 				err = ErrInvalidAddressingMode
