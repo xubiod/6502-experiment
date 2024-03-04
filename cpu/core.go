@@ -4,6 +4,15 @@ import (
 	"errors"
 )
 
+// A Core is the main data structure of the emulator. It holds its own memory,
+// registers, and execution maps for instruction execution.
+//
+// This emulator is made as a **generic 6502 CPU emulator**, and as such as features
+// that can be toggled with the `Features` field (see `CoreFeatureFlags`) to make
+// the emulator act more like a specific 6502-compatible CPU.
+//
+// The emulator was designed like this for the ability to be able to run multiple
+// emulations at once independently in coroutines if ever necessary.
 type Core struct {
 	// A 65,536 byte array to fully represent the memory of a 6502.
 	//
@@ -57,11 +66,11 @@ const (
 	FLAG_CARRY             byte = 1 << iota // C - Set when the last operation resulted in an overflow.
 	FLAG_ZERO                               // Z - Set when the last operation resulted in a zero.
 	FLAG_INTERRUPT_DISABLE                  // I - When set, interrupts are disabled.
-	FLAG_DECIMAL                            // D - When set, math operations are done with BCD.
+	FLAG_DECIMAL                            // D - When set, math operations are done with BCD. No other operation is affected by the status of this flag.
 	FLAG_BREAK                              // B - Set when a software interrupt happens with `BRK`.
-	FLAG_UNUSED                             // _ - This flag is not used by the 6502.
-	FLAG_OVERFLOW                           // V - Set when the last operation resulted in a *signed overflow*.
-	FLAG_NEGATIVE                           // N - Set when the last operation resulted as a negative number.
+	FLAG_UNUSED                             // _ - This flag is not used by the 6502. The emulator masks it out during status push/pulls from the stack.
+	FLAG_OVERFLOW                           // V - Set when the last operation resulted in a *signed overflow* if the numbers were interpreted as signed.
+	FLAG_NEGATIVE                           // N - Set when the last operation resulted as a negative number as a bit 7 check.
 )
 
 // Does the calculations for a zero-page indirect indexed with Y address to get
