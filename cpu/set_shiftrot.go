@@ -4,7 +4,7 @@ package cpu
 //
 // This will change the flags of the Core it's run in.
 func (c *Core) asl_impl(loc *byte) {
-	var shouldCarry = *loc & 0x80
+	var shouldCarry = *loc & 0b10000000
 
 	*loc = (*loc << 1) & 0xFE
 
@@ -31,7 +31,7 @@ func (c *Core) asl_impl(loc *byte) {
 //
 // This will change the flags of the Core it's run in.
 func (c *Core) lsr_impl(loc *byte) {
-	var shouldCarry = *loc & 0x01
+	var shouldCarry = *loc & 0b00000001
 
 	*loc = (*loc >> 1) & 0x7F
 
