@@ -21,6 +21,12 @@ type Core struct {
 	S     uint8  // S - stack pointer; starts at `0x01FF` and grows down to `0x0100`
 	Flags byte   // P - status, flags
 
+	// Some instructions have different behaviours depending on what 6502-compatible
+	// CPU they were based on, a quick example being the NES CPU not implementing
+	// decimal mode functionality but keeping the flag itself.
+	//
+	// This struct has the options that can be changed to act more like a specific
+	// CPU instead of a generic 6502.
 	Features CoreFeatureFlags
 
 	// The byte -> implementation map for instructions with no operands.
@@ -37,9 +43,11 @@ type Core struct {
 	writingPointer uint16 // The pointer to writing to memory with `*Core.Write()`.
 }
 
+// A struct for a set of feature flags that can be changed to have the emulator
+// "specialized" to a specific 6502-compatible CPU instead of a generic 6502.
 type CoreFeatureFlags struct {
 	// Is decimal mode implemented? Toggling this off does not change the behaviour
-	// of enabling/disabling the flag itself, but if off ADC/SBC will ignore it.
+	// of enabling/disabling the flag itself, but if off ADC/SBC will ignore the flag.
 	//
 	// Setting this to false will act like a NES CPU.
 	DecimalModeImplemented bool
