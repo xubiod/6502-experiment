@@ -1,24 +1,49 @@
 package cpu
 
-// The implementation of the add with carry.
+// The implementation of the add with carry. Decimal mode will be handled automatically
+// depending on the decimal mode flag being set and the Core's feature flags for decimal
+// mode being set.
 //
 // This will change flags in the Core it's run in.
 func (c *Core) adc_impl(middle byte) {
-	if c.Features.DecimalModeImplemented && c.Flags&FLAG_DECIMAL > 0 {
-		c.adc_impl_decimal(middle)
-		return
-	}
-
 	var u1 = uint16(c.A)
 	var u2 = uint16(middle)
 	var result = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
 
-	c.A = byte(result & 0xFF)
+	if c.Features.DecimalModeImplemented && c.Flags&FLAG_DECIMAL > 0 {
+		var lo = (u1 & 0x0F) + (u2 & 0x0F) + uint16(c.Flags&FLAG_CARRY)
+		var loCarry = 0
+		if lo > 0x09 {
+			lo += 6
+			loCarry = 1
+			lo = lo & 0x0F
+		}
 
-	if result&0xFF != result {
-		c.Flags = c.Flags | FLAG_CARRY
+		var hi = ((u1 & 0xF0) >> 4) + ((u2 & 0xF0) >> 4) + uint16(loCarry)
+		var hiCarry = 0
+		if hi > 0x09 {
+			hi += 6
+			hiCarry = 1
+			hi = hi & 0x0F
+		}
+
+		var bcdResult = (hi << 4) | lo
+
+		c.A = byte(bcdResult & 0xFF)
+
+		if hiCarry > 0 {
+			c.Flags = c.Flags | FLAG_CARRY
+		} else {
+			c.Flags = c.Flags & ^FLAG_CARRY
+		}
 	} else {
-		c.Flags = c.Flags & ^FLAG_CARRY
+		c.A = byte(result & 0xFF)
+
+		if result&0xFF != result {
+			c.Flags = c.Flags | FLAG_CARRY
+		} else {
+			c.Flags = c.Flags & ^FLAG_CARRY
+		}
 	}
 
 	if result&0b10000000 > 0 {
@@ -36,62 +61,6 @@ func (c *Core) adc_impl(middle byte) {
 	// the fucking overflow flag
 
 	if (u1^result)&(u2^result)&0x80 != 0 {
-		c.Flags = c.Flags | FLAG_OVERFLOW
-	} else {
-		c.Flags = c.Flags & ^FLAG_OVERFLOW
-	}
-}
-
-// The implementation of the add with carry using BCD.
-//
-// This will change flags in the Core it's run in.
-func (c *Core) adc_impl_decimal(middle byte) {
-	var u1 = uint16(c.A)
-	var u2 = uint16(middle)
-
-	var normResult = u1 + u2 + uint16(c.Flags&FLAG_CARRY)
-
-	var lo = (u1 & 0x0F) + (u2 & 0x0F) + uint16(c.Flags&FLAG_CARRY)
-	var loCarry = 0
-	if lo > 0x09 {
-		lo += 6
-		loCarry = 1
-		lo = lo & 0x0F
-	}
-
-	var hi = ((u1 & 0xF0) >> 4) + ((u2 & 0xF0) >> 4) + uint16(loCarry)
-	var hiCarry = 0
-	if hi > 0x09 {
-		hi += 6
-		hiCarry = 1
-		hi = hi & 0x0F
-	}
-
-	var result = (hi << 4) | lo
-
-	c.A = byte(result & 0xFF)
-
-	if hiCarry > 0 {
-		c.Flags = c.Flags | FLAG_CARRY
-	} else {
-		c.Flags = c.Flags & ^FLAG_CARRY
-	}
-
-	if normResult&0b10000000 > 0 {
-		c.Flags = c.Flags | FLAG_NEGATIVE
-	} else {
-		c.Flags = c.Flags & ^FLAG_NEGATIVE
-	}
-
-	if normResult == 0 {
-		c.Flags = c.Flags | FLAG_ZERO
-	} else {
-		c.Flags = c.Flags & ^FLAG_ZERO
-	}
-
-	// the fucking overflow flag
-
-	if (u1^normResult)&(u2^normResult)&0x80 != 0 {
 		c.Flags = c.Flags | FLAG_OVERFLOW
 	} else {
 		c.Flags = c.Flags & ^FLAG_OVERFLOW
