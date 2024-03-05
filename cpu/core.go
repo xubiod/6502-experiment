@@ -88,6 +88,13 @@ type CoreFeatureFlags struct {
 	NMOSDecimalModeFlagBug bool
 }
 
+var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
+	DecimalModeImplemented: true,
+	RotateRightBug:         false,
+	NMOSIndirectJumpBug:    true,
+	NMOSDecimalModeFlagBug: true,
+}
+
 const (
 	FLAG_CARRY             byte = 1 << iota // C - Set when the last operation resulted in an overflow.
 	FLAG_ZERO                               // Z - Set when the last operation resulted in a zero.
@@ -122,7 +129,7 @@ func (c *Core) indirectZpX(zp byte) (addr uint16) {
 
 // Creates and prepares a *Core.
 func NewCore() (c *Core) {
-	c = &Core{Features: CoreFeatureFlags{DecimalModeImplemented: true, NMOSIndirectJumpBug: true, NMOSDecimalModeFlagBug: true}}
+	c = &Core{Features: defaultFeatures}
 	c.prepare()
 	return
 }
