@@ -87,7 +87,12 @@ func (c *Core) rol_impl(loc *byte) {
 func (c *Core) ror_impl(loc *byte) {
 	var futureCarry = *loc & 0b00000001
 
-	*loc = ((*loc >> 1) & 0x7F) | ((c.Flags & FLAG_CARRY) << 7)
+	if !c.Features.RotateRightBug {
+		*loc = ((*loc >> 1) & 0x7F) | ((c.Flags & FLAG_CARRY) << 7)
+	} else {
+		*loc = (*loc << 1) & 0xFE
+		futureCarry = 0
+	}
 
 	if futureCarry > 0 {
 		c.Flags = c.Flags | FLAG_CARRY

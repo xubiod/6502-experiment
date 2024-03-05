@@ -10,16 +10,22 @@ func (c *Core) JMP___Ia(addrIndirect uint16) {
 	var lsb, msb, page, within byte
 	var addrL, addrM uint16
 
-	page = byte(addrIndirect & 0xFF00 >> 8)
-	within = byte(addrIndirect & 0x00FF)
+	if c.Features.NMOSIndirectJumpBug {
+		page = byte(addrIndirect & 0xFF00 >> 8)
+		within = byte(addrIndirect & 0x00FF)
 
-	addrL = (uint16(page) << 8) | uint16(within)
-	addrM = (uint16(page) << 8) | ((uint16(within) + 1) & 0xFF)
+		addrL = (uint16(page) << 8) | uint16(within)
+		addrM = (uint16(page) << 8) | ((uint16(within) + 1) & 0xFF)
 
-	lsb = c.Memory[addrL]
-	msb = c.Memory[addrM]
+		lsb = c.Memory[addrL]
+		msb = c.Memory[addrM]
+	} else {
+		lsb = c.Memory[addrIndirect]
+		msb = c.Memory[addrIndirect+1]
+	}
 
 	c.PC = (uint16(msb) << 8) | uint16(lsb)
+
 }
 
 // Jump + Push Return Address to Stack - Absolute

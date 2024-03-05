@@ -36,6 +36,10 @@ func (c *Core) adc_impl(middle byte) {
 		} else {
 			c.Flags = c.Flags & ^FLAG_CARRY
 		}
+
+		if !c.Features.NMOSDecimalModeFlagBug {
+			result = bcdResult
+		}
 	} else {
 		c.A = byte(result & 0xFF)
 
@@ -141,6 +145,10 @@ func (c *Core) sbc_impl_decimal(middle byte) {
 	var result = (hi << 4) | lo
 
 	c.A = byte(result & 0xFF)
+
+	if !c.Features.NMOSDecimalModeFlagBug {
+		normResult = result
+	}
 
 	if hiBorrow > 0 {
 		c.Flags = c.Flags & ^FLAG_CARRY

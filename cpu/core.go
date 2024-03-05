@@ -58,8 +58,34 @@ type CoreFeatureFlags struct {
 	// Is decimal mode implemented? Toggling this off does not change the behaviour
 	// of enabling/disabling the flag itself, but if off ADC/SBC will ignore the flag.
 	//
-	// Setting this to false will act like a NES CPU.
+	// Setting this to false will act like a NES CPU, and defaults to `true`.
 	DecimalModeImplemented bool
+
+	// Is the ROR instruction broken from early revisions? The earliest revisions of the
+	// 6502 effectively had the ROR instruction as an arithmetic shift left that did not
+	// affect the carry flag instead. This is no longer an issue in 6502 chips that exist
+	// today.
+	//
+	// This is defaulted to `false`.
+	RotateRightBug bool
+
+	// Is the indirect jump bugged? On the NMOS 6502 family the indirect jump gets the
+	// incorrect address when at a high-end page boundary (`xxFF`) which causes the address
+	// to be formed from the bytes at `xx00` and `xxFF` instead of the expected behaviour.
+	//
+	// The CMOS derivatives fix this issue.
+	//
+	// This is defaulted to `true`.
+	NMOSIndirectJumpBug bool
+
+	// On the NMOS line, the flags after arithmetic operations while in decimal mode are
+	// **based on the binary result** instead of the decimal result. As a result, the flags
+	// after a decimal mode operation are generally seen as meaningless.
+	//
+	// The CMOS derivatives fix this issue.
+	//
+	// This is defaulted to `true`.
+	NMOSDecimalModeFlagBug bool
 }
 
 const (
@@ -96,7 +122,7 @@ func (c *Core) indirectZpX(zp byte) (addr uint16) {
 
 // Creates and prepares a *Core.
 func NewCore() (c *Core) {
-	c = &Core{Features: CoreFeatureFlags{DecimalModeImplemented: true}}
+	c = &Core{Features: CoreFeatureFlags{DecimalModeImplemented: true, NMOSIndirectJumpBug: true, NMOSDecimalModeFlagBug: true}}
 	c.prepare()
 	return
 }
