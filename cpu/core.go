@@ -171,6 +171,9 @@ func NewCore() (c *Core) {
 // Creates the decoding tables. Must be called before any execution unless writing
 // your own execution loop.
 func (c *Core) prepare() {
+
+	// NMOS 6502
+
 	c.execMapNil = map[byte]func(){
 		0x00: c.BRK____i, 0x08: c.PHP____i, 0x0A: c.ASL____A,
 		0x18: c.CLC____i,
@@ -236,6 +239,8 @@ func (c *Core) prepare() {
 		0xDA: c.PHX____i,
 		0xFA: c.PLX____i,
 	}
+
+	// CMOS 65c02
 
 	c.execMapByteCMOS = map[byte]func(uint8){
 		0x04: c.TSB__ZPg, 0x07: c.RMB__Gen(0),
