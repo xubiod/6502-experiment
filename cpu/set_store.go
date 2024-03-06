@@ -60,4 +60,6 @@ func (c *Core) STZ__ZPg(zp byte) { c.PC += 2; c.Memory[zp] = 0 }
 func (c *Core) STZ__ZPx(zp byte) { c.PC += 2; c.Memory[(zp+c.X)&0xFF] = 0 }
 
 // Store Accumulator into Memory - Zero Page Indirect
-func (c *Core) STA__IZP(zp byte) { panic("unimplemented") }
+//
+// CMOS 65c02
+func (c *Core) STA__IZP(zp byte) { c.PC += 2; c.Memory[c.indirectZp(zp)] = c.A }

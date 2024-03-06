@@ -228,13 +228,9 @@ func (c *Core) SBC_IZPy(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpY(
 // Add with Carry - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) ADC__IZP(zp uint8) {
-	panic("unimplemented")
-}
+func (c *Core) ADC__IZP(zp uint8) { c.PC += 2; c.adc_impl(byte(c.indirectZp(zp))) }
 
 // Subtract with Borrow - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) SBC__IZP(zp uint8) {
-	panic("unimplemented")
-}
+func (c *Core) SBC__IZP(zp uint8) { c.PC += 2; c.sbc_impl(byte(c.indirectZp(zp))) }

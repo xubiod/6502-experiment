@@ -161,6 +161,16 @@ func (c *Core) indirectZpX(zp byte) (addr uint16) {
 	return
 }
 
+// Does the calculations for a zero-page indirect to get the address.
+func (c *Core) indirectZp(zp byte) (addr uint16) {
+	var lsb, msb byte
+	lsb = c.Memory[zp]
+	msb = c.Memory[(zp+1)&0xFF]
+
+	addr = (uint16(msb) << 8 & uint16(lsb))
+	return
+}
+
 // Creates and prepares a *Core.
 func NewCore() (c *Core) {
 	c = &Core{Features: defaultFeatures}

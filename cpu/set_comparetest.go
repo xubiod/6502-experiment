@@ -157,7 +157,7 @@ func (c *Core) BIT__Imm(literal byte) { c.bit_impl(literal) }
 // Compare Memory with Accumulator - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) CMP__IZP(zp byte) { panic("unimplemented") }
+func (c *Core) CMP__IZP(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[c.indirectZp(zp)]) }
 
 // Test and Reset Bits - Absolute
 //

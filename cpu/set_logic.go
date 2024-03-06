@@ -132,20 +132,14 @@ func (c *Core) EOR_IZPy(zp byte) { c.PC += 2; c.eor_impl(c.Memory[c.indirectZpY(
 // Bitwise AND Accumulator with Memory - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) AND__IZP(zp uint8) {
-	panic("unimplemented")
-}
+func (c *Core) AND__IZP(zp uint8) { c.PC += 2; c.and_impl(c.Memory[c.indirectZp(zp)]) }
 
 // Bitwise ORA Accumulator with Memory - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) ORA__IZP(zp uint8) {
-	panic("unimplemented")
-}
+func (c *Core) ORA__IZP(zp uint8) { c.PC += 2; c.ora_impl(c.Memory[c.indirectZp(zp)]) }
 
 // Bitwise Exclusive OR Accumulator with Memory - Zero Page Indirect
 //
 // CMOS 65c02
-func (c *Core) EOR__IZP(zp uint8) {
-	panic("unimplemented")
-}
+func (c *Core) EOR__IZP(zp uint8) { c.PC += 2; c.eor_impl(c.Memory[c.indirectZp(zp)]) }
