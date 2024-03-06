@@ -255,22 +255,22 @@ func (c *Core) prepare() {
 	}
 
 	c.execMapBitBranchCMOS = map[byte]func(uint8, uint8){
-		0x0F: c.BBR__gen(0),
-		0x1F: c.BBR__gen(1),
-		0x2F: c.BBR__gen(2),
-		0x3F: c.BBR__gen(3),
-		0x4F: c.BBR__gen(4),
-		0x5F: c.BBR__gen(5),
-		0x6F: c.BBR__gen(6),
-		0x7F: c.BBR__gen(7),
-		0x8F: c.BBS__gen(0),
-		0x9F: c.BBS__gen(1),
-		0xAF: c.BBS__gen(2),
-		0xBF: c.BBS__gen(3),
-		0xCF: c.BBS__gen(4),
-		0xDF: c.BBS__gen(5),
-		0xEF: c.BBS__gen(6),
-		0xFF: c.BBS__gen(7),
+		0x0F: c.BBR__Gen(0),
+		0x1F: c.BBR__Gen(1),
+		0x2F: c.BBR__Gen(2),
+		0x3F: c.BBR__Gen(3),
+		0x4F: c.BBR__Gen(4),
+		0x5F: c.BBR__Gen(5),
+		0x6F: c.BBR__Gen(6),
+		0x7F: c.BBR__Gen(7),
+		0x8F: c.BBS__Gen(0),
+		0x9F: c.BBS__Gen(1),
+		0xAF: c.BBS__Gen(2),
+		0xBF: c.BBS__Gen(3),
+		0xCF: c.BBS__Gen(4),
+		0xDF: c.BBS__Gen(5),
+		0xEF: c.BBS__Gen(6),
+		0xFF: c.BBS__Gen(7),
 	}
 
 	c.execMapShortCMOS = map[byte]func(uint16){

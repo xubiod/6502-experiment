@@ -90,7 +90,7 @@ func (c *Core) BRA__rel(raw uint8) {
 // this over and over
 //
 // CMOS 65c02
-func (c *Core) BBR__gen(bit uint) func(zp byte, raw uint8) {
+func (c *Core) BBR__Gen(bit uint) func(zp byte, raw uint8) {
 	if bit > 7 {
 		panic("can only check bits from 0 to 7")
 	}
@@ -108,7 +108,7 @@ func (c *Core) BBR__gen(bit uint) func(zp byte, raw uint8) {
 // this over and over
 //
 // CMOS 65c02
-func (c *Core) BBS__gen(bit uint) func(zp byte, raw uint8) {
+func (c *Core) BBS__Gen(bit uint) func(zp byte, raw uint8) {
 	if bit > 7 {
 		panic("can only check bits from 0 to 7")
 	}
