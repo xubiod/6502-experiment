@@ -66,12 +66,16 @@ type CoreFeatureFlags struct {
 	// affect the carry flag instead. This is no longer an issue in 6502 chips that exist
 	// today.
 	//
+	// The opcode still _did_ something on the 6502, but it was not documented until it was
+	// properly implemented into the 6502.
+	//
 	// This is defaulted to `false`.
 	RotateRightBug bool
 
 	// Is the indirect jump bugged? On the NMOS 6502 family the indirect jump gets the
 	// incorrect address when at a high-end page boundary (`xxFF`) which causes the address
-	// to be formed from the bytes at `xx00` and `xxFF` instead of the expected behaviour.
+	// to be formed from the bytes at `xx00` and `xxFF` instead of the expected behaviour,
+	// which would be getting the other byte from the next page and not the same page.
 	//
 	// The CMOS derivatives fix this issue.
 	//
@@ -81,6 +85,10 @@ type CoreFeatureFlags struct {
 	// On the NMOS line, the flags after arithmetic operations while in decimal mode are
 	// **based on the binary result** instead of the decimal result. As a result, the flags
 	// after a decimal mode operation are generally seen as meaningless.
+	//
+	// As an example, in binary mode `$99 + $01` the result is `$9A` with carry cleared. In
+	// decimal mode, the result would be `$00` with the carry set, but the zero flag remains
+	// **cleared as the binary result was not zero**.
 	//
 	// The CMOS derivatives fix this issue.
 	//
