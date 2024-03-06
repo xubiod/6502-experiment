@@ -162,6 +162,8 @@ func (c *Core) indirectZpX(zp byte) (addr uint16) {
 }
 
 // Does the calculations for a zero-page indirect to get the address.
+//
+// Only used by 65c02 instructions.
 func (c *Core) indirectZp(zp byte) (addr uint16) {
 	var lsb, msb byte
 	lsb = c.Memory[zp]
