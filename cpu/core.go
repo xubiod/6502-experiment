@@ -85,7 +85,7 @@ type CoreFeatureFlags struct {
 	// The CMOS derivatives fix this issue.
 	//
 	// This is defaulted to `true`.
-	NMOSIndirectJumpBug bool
+	NMOSAbsoluteIndirectBug bool
 
 	// On the NMOS line, the flags after arithmetic operations while in decimal mode are
 	// **based on the binary result** instead of the decimal result. As a result, the flags
@@ -123,7 +123,7 @@ type CoreFeatureFlags struct {
 var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
 	DecimalModeImplemented:          true,
 	RotateRightBug:                  false,
-	NMOSIndirectJumpBug:             true,
+	NMOSAbsoluteIndirectBug:         true,
 	NMOSDecimalModeFlagBug:          true,
 	IncrementPCOnInvalidInstruction: false,
 	EnableCMOSInstructions:          false,
