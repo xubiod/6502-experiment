@@ -241,6 +241,8 @@ func (c *Core) prepare() {
 		0xF9: c.SBC___ay, 0xFD: c.SBC___ax, 0xFE: c.INC___ax,
 	}
 
+	// CMOS 65c02
+
 	c.execMapNilCMOS = map[byte]func(){
 		0x1A: c.INA____i,
 		0x3A: c.DEA____i,
@@ -249,8 +251,6 @@ func (c *Core) prepare() {
 		0xDA: c.PHX____i,
 		0xFA: c.PLX____i,
 	}
-
-	// CMOS 65c02
 
 	c.execMapByteCMOS = map[byte]func(uint8){
 		0x04: c.TSB__ZPg, 0x07: c.RMB__Gen(0),
