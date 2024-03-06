@@ -145,7 +145,7 @@ const (
 func (c *Core) indirectZpY(zp byte) (addr uint16) {
 	var lsb, msb byte
 	lsb = c.Memory[zp]
-	msb = c.Memory[zp+1]
+	msb = c.Memory[(zp+1)&0xFF]
 
 	addr = (uint16(msb) << 8 & uint16(lsb)) + uint16(c.Y)
 	return
@@ -155,7 +155,7 @@ func (c *Core) indirectZpY(zp byte) (addr uint16) {
 func (c *Core) indirectZpX(zp byte) (addr uint16) {
 	var lsb, msb byte
 	lsb = c.Memory[(zp+c.X)&0xFF]
-	msb = c.Memory[zp+c.X+1]
+	msb = c.Memory[(zp+c.X+1)&0xFF]
 
 	addr = uint16(msb) << 8 & uint16(lsb)
 	return
