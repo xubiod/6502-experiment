@@ -10,7 +10,7 @@ func (c *Core) JMP___Ia(addrIndirect uint16) {
 	var lsb, msb, page, within byte
 	var addrL, addrM uint16
 
-	if c.Features.NMOSIndirectJumpBug {
+	if c.Features.NMOSAbsoluteIndirectBug {
 		page = byte(addrIndirect & 0xFF00 >> 8)
 		within = byte(addrIndirect & 0x00FF)
 
@@ -79,4 +79,27 @@ func (c *Core) RTI____i() {
 	c.Flags = flags
 
 	c.PC = addr
+}
+
+// Jump - Indirect Absolute Indexed
+func (c *Core) JMP__Iax(addrIndirect uint16) {
+	panic("unimplemented")
+	// var lsb, msb, page, within byte
+	// var addrL, addrM uint16
+
+	// if c.Features.NMOSAbsoluteIndirectBug {
+	// 	page = byte(addrIndirect & 0xFF00 >> 8)
+	// 	within = byte(addrIndirect & 0x00FF)
+
+	// 	addrL = (uint16(page) << 8) | uint16(within)
+	// 	addrM = (uint16(page) << 8) | ((uint16(within) + 1) & 0xFF)
+
+	// 	lsb = c.Memory[addrL]
+	// 	msb = c.Memory[addrM]
+	// } else {
+	// 	lsb = c.Memory[addrIndirect]
+	// 	msb = c.Memory[addrIndirect+1]
+	// }
+
+	// c.PC = (uint16(msb) << 8) | uint16(lsb)
 }

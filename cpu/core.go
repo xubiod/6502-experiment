@@ -229,6 +229,8 @@ func (c *Core) prepare() {
 	}
 
 	c.execMapNilCMOS = map[byte]func(){
+		0x1A: c.INA____i,
+		0x3A: c.DEA____i,
 		0x5A: c.PHY____i,
 		0x7A: c.PLY____i,
 		0xDA: c.PHX____i,
@@ -237,21 +239,21 @@ func (c *Core) prepare() {
 
 	c.execMapByteCMOS = map[byte]func(uint8){
 		0x04: c.TSB__ZPg, 0x07: c.RMB__Gen(0),
-		0x14: c.TRB__ZPg, 0x17: c.RMB__Gen(1),
+		0x12: c.ORA__IZP, 0x14: c.TRB__ZPg, 0x17: c.RMB__Gen(1),
 		0x27: c.RMB__Gen(2),
-		0x37: c.RMB__Gen(3),
+		0x32: c.AND__IZP, 0x34: c.BIT__ZPx, 0x37: c.RMB__Gen(3),
 		0x47: c.RMB__Gen(4),
-		0x57: c.RMB__Gen(5),
+		0x52: c.EOR__IZP, 0x57: c.RMB__Gen(5),
 		0x64: c.STZ__ZPg, 0x67: c.RMB__Gen(6),
-		0x74: c.STZ__ZPx, 0x77: c.RMB__Gen(7),
-		0x80: c.BRA__rel, 0x87: c.SMB__Gen(0),
-		0x97: c.SMB__Gen(1),
+		0x72: c.ADC__IZP, 0x74: c.STZ__ZPx, 0x77: c.RMB__Gen(7),
+		0x80: c.BRA__rel, 0x87: c.SMB__Gen(0), 0x89: c.BIT__Imm,
+		0x92: c.STA__IZP, 0x97: c.SMB__Gen(1),
 		0xA7: c.SMB__Gen(2),
-		0xB7: c.SMB__Gen(3),
+		0xB2: c.LDA__IZP, 0xB7: c.SMB__Gen(3),
 		0xC7: c.SMB__Gen(4),
-		0xD7: c.SMB__Gen(5),
+		0xD2: c.CMP__IZP, 0xD7: c.SMB__Gen(5),
 		0xE7: c.SMB__Gen(6),
-		0xF7: c.SMB__Gen(7),
+		0xF2: c.SBC__IZP, 0xF7: c.SMB__Gen(7),
 	}
 
 	c.execMapBitBranchCMOS = map[byte]func(uint8, uint8){
@@ -276,6 +278,8 @@ func (c *Core) prepare() {
 	c.execMapShortCMOS = map[byte]func(uint16){
 		0x0C: c.TSB____a,
 		0x1C: c.TRB____a,
+		0x3C: c.BIT___ax,
+		0x7C: c.JMP__Iax,
 		0x9C: c.STZ____a, 0x9E: c.STZ___ax,
 	}
 

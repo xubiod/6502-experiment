@@ -79,3 +79,13 @@ func (c *Core) DEX____i() { c.PC += 1; c.dec_impl(&c.X) }
 
 // Decrement Y by One - Implied
 func (c *Core) DEY____i() { c.PC += 1; c.dec_impl(&c.Y) }
+
+// Increment Accumulator by One - Implied
+//
+// CMOS 65c02
+func (c *Core) INA____i() { c.PC += 1; c.inc_impl(&c.A) }
+
+// Decrement Accumulator by One - Implied
+//
+// CMOS 65c02
+func (c *Core) DEA____i() { c.PC += 1; c.dec_impl(&c.A) }

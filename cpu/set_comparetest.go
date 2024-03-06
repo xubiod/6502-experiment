@@ -139,6 +139,26 @@ func (c *Core) tsb_impl(loc uint16) {
 	}
 }
 
+// Bit Test Memory with Accumulator - Absolute Indexed with X
+//
+// CMOS 65c02
+func (c *Core) BIT___ax(addr uint16) { c.bit_impl(c.Memory[addr+uint16(c.X)]) }
+
+// Bit Test Memory with Accumulator - Zero Page Indexed with X
+//
+// CMOS 65c02
+func (c *Core) BIT__ZPx(zp byte) { c.bit_impl(c.Memory[(zp+c.X)&0xFF]) }
+
+// Bit Test Memory with Accumulator - Immediate
+//
+// CMOS 65c02
+func (c *Core) BIT__Imm(literal byte) { c.bit_impl(literal) }
+
+// Compare Memory with Accumulator - Zero Page Indirect
+//
+// CMOS 65c02
+func (c *Core) CMP__IZP(zp byte) { panic("unimplemented") }
+
 // Test and Reset Bits - Absolute
 //
 // CMOS 65c02

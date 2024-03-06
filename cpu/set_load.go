@@ -73,3 +73,6 @@ func (c *Core) LDY__ZPg(zp byte) { c.PC += 2; c.ld_impl(&c.Y, c.Memory[zp]) }
 
 // Load Memory into Y - Zero Page indexed with X
 func (c *Core) LDY__ZPx(zp byte) { c.PC += 2; c.ld_impl(&c.Y, c.Memory[(zp+c.X)&0xFF]) }
+
+// Load Memory into Accumulator - Zero Page Indirect
+func (c *Core) LDA__IZP(zp byte) { panic("unimplemented") }
