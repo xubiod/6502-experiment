@@ -106,3 +106,55 @@ func (c *Core) BIT____a(addr uint16) { c.PC += 3; c.bit_impl(c.Memory[addr]) }
 func (c *Core) BIT__ZPg(zp byte) { c.PC += 2; c.bit_impl(c.Memory[zp]) }
 
 // func (c *Core) BIT_Im(literal byte) { c.bit_impl(literal) }
+
+func (c *Core) trb_impl(loc uint16) {
+	what := c.Memory[loc]
+	var r = c.A & what
+
+	working := c.A ^ 0xFF
+	working = working & what
+
+	c.Memory[loc] = working
+
+	if r == 0 {
+		c.Flags = c.Flags | FLAG_ZERO
+	} else {
+		c.Flags = c.Flags & ^FLAG_ZERO
+	}
+}
+
+func (c *Core) tsb_impl(loc uint16) {
+	what := c.Memory[loc]
+	var r = c.A & what
+
+	working := c.A
+	working = working | what
+
+	c.Memory[loc] = working
+
+	if r == 0 {
+		c.Flags = c.Flags | FLAG_ZERO
+	} else {
+		c.Flags = c.Flags & ^FLAG_ZERO
+	}
+}
+
+// Test and Reset Bits - Absolute
+//
+// CMOS 65c02
+func (c *Core) TRB____a(addr uint16) { c.PC += 3; c.trb_impl(addr) }
+
+// Test and Reset Bits - Zero Page
+//
+// CMOS 65c02
+func (c *Core) TRB__ZPg(zp byte) { c.PC += 2; c.trb_impl(uint16(zp)) }
+
+// Test and Set Bits - Absolute
+//
+// CMOS 65c02
+func (c *Core) TSB____a(addr uint16) { c.PC += 3; c.tsb_impl(addr) }
+
+// Test and Set Bits - Zero Page
+//
+// CMOS 65c02
+func (c *Core) TSB__ZPg(zp byte) { c.PC += 2; c.tsb_impl(uint16(zp)) }

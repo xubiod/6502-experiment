@@ -86,7 +86,7 @@ func TestResetRoutine(t *testing.T) {
 	executing := true
 
 	for c.Memory[c.PC] != 0x00 && executing {
-		executing = c.StepOnce()
+		executing, _, _ = c.StepOnce()
 	}
 
 	if c.A != 0 {
@@ -346,7 +346,9 @@ func stdProcedure(c *Core, program []byte) {
 	c.Write(program)
 
 	c.PC = 0x0200
+	var exe bool = true
 
-	for c.Memory[c.PC] != 0x00 && c.StepOnce() {
+	for c.Memory[c.PC] != 0x00 && exe {
+		exe, _, _ = c.StepOnce()
 	}
 }

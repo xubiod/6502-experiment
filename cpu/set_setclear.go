@@ -20,3 +20,33 @@ func (c *Core) SEI____i() { c.PC += 1; c.Flags = c.Flags | FLAG_INTERRUPT_DISABL
 
 // Clear Overflow Flag - Implied
 func (c *Core) CLV____i() { c.PC += 1; c.Flags = c.Flags & ^FLAG_OVERFLOW }
+
+// Set Memory Bit - Func Generator
+//
+// This is like this because the opcode determines the bit, and there's no need to do
+// this over and over
+//
+// CMOS 65c02
+func (c *Core) SMB__Gen(bit uint) func(zp byte) {
+	if bit > 7 {
+		panic("can only check bits from 0 to 7")
+	}
+	return func(zp byte) {
+		c.Memory[zp] = c.Memory[zp] | (0b00000001 << bit)
+	}
+}
+
+// Clear Memory Bit - Func Generator
+//
+// This is like this because the opcode determines the bit, and there's no need to do
+// this over and over
+//
+// CMOS 65c02
+func (c *Core) RMB__Gen(bit uint) func(zp byte) {
+	if bit > 7 {
+		panic("can only check bits from 0 to 7")
+	}
+	return func(zp byte) {
+		c.Memory[zp] = c.Memory[zp] & ^(0b00000001 << bit)
+	}
+}

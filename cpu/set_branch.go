@@ -75,3 +75,47 @@ func (c *Core) BVS__rel(raw uint8) {
 		c.PC += branchVal(raw)
 	}
 }
+
+// Branch Always - Relative
+//
+// CMOS 65c02
+func (c *Core) BRA__rel(raw uint8) {
+	c.PC += 2
+	c.PC += branchVal(raw)
+}
+
+// Branch if Bit Cleared - Func Generator
+//
+// This is like this because the opcode determines the bit, and there's no need to do
+// this over and over
+//
+// CMOS 65c02
+func (c *Core) BBR__gen(bit uint) func(zp byte, raw uint8) {
+	if bit > 7 {
+		panic("can only check bits from 0 to 7")
+	}
+	return func(zp byte, raw uint8) {
+		c.PC += 3
+		if (c.Memory[zp]>>bit)&0b00000001 == 0 {
+			c.PC += branchVal(raw)
+		}
+	}
+}
+
+// Branch if Bit Set - Func Generator
+//
+// This is like this because the opcode determines the bit, and there's no need to do
+// this over and over
+//
+// CMOS 65c02
+func (c *Core) BBS__gen(bit uint) func(zp byte, raw uint8) {
+	if bit > 7 {
+		panic("can only check bits from 0 to 7")
+	}
+	return func(zp byte, raw uint8) {
+		c.PC += 3
+		if (c.Memory[zp]>>bit)&0b00000001 > 0 {
+			c.PC += branchVal(raw)
+		}
+	}
+}

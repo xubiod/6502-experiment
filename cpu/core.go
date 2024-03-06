@@ -49,6 +49,11 @@ type Core struct {
 	// bytes) as an operand.
 	execMapShort map[byte]func(uint16)
 
+	execMapNilCMOS       map[byte]func()
+	execMapByteCMOS      map[byte]func(uint8)
+	execMapBitBranchCMOS map[byte]func(uint8, uint8)
+	execMapShortCMOS     map[byte]func(uint16)
+
 	writingPointer uint16 // The pointer to writing to memory with `*Core.Write()`.
 }
 
@@ -94,13 +99,34 @@ type CoreFeatureFlags struct {
 	//
 	// This is defaulted to `true`.
 	NMOSDecimalModeFlagBug bool
+
+	// This is just a simple flag to make `StepOnce()` treat invalid instructions as NOPs
+	// instead of doing nothing. The NOP byte lengths are different and affect the amount
+	// that the program counter is affected by.
+	//
+	// This is similar to the behaviour of CMOS derivatives.
+	//
+	// Note that this affects the returns of `StepOnce()`
+	//
+	// This is defaulted to `false`.
+	IncrementPCOnInvalidInstruction bool
+
+	// This enables the recognition and execution of CMOS instructions, notably the 65c02.
+	//
+	// The implemented CMOS instructions do not cover WDC 65c02 only instructions (STP and
+	// WAI) at the time of writing.
+	//
+	// This is defaulted to `false`.
+	EnableCMOSInstructions bool
 }
 
 var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
-	DecimalModeImplemented: true,
-	RotateRightBug:         false,
-	NMOSIndirectJumpBug:    true,
-	NMOSDecimalModeFlagBug: true,
+	DecimalModeImplemented:          true,
+	RotateRightBug:                  false,
+	NMOSIndirectJumpBug:             true,
+	NMOSDecimalModeFlagBug:          true,
+	IncrementPCOnInvalidInstruction: false,
+	EnableCMOSInstructions:          false,
 }
 
 const (
@@ -202,21 +228,96 @@ func (c *Core) prepare() {
 		0xF9: c.SBC___ay, 0xFD: c.SBC___ax, 0xFE: c.INC___ax,
 	}
 
+	c.execMapNilCMOS = map[byte]func(){
+		0x5A: c.PHY____i,
+		0x7A: c.PLY____i,
+		0xDA: c.PHX____i,
+		0xFA: c.PLX____i,
+	}
+
+	c.execMapByteCMOS = map[byte]func(uint8){
+		0x04: c.TSB__ZPg, 0x07: c.RMB__Gen(0),
+		0x14: c.TRB__ZPg, 0x17: c.RMB__Gen(1),
+		0x27: c.RMB__Gen(2),
+		0x37: c.RMB__Gen(3),
+		0x47: c.RMB__Gen(4),
+		0x57: c.RMB__Gen(5),
+		0x64: c.STZ__ZPg, 0x67: c.RMB__Gen(6),
+		0x74: c.STZ__ZPx, 0x77: c.RMB__Gen(7),
+		0x80: c.BRA__rel, 0x87: c.SMB__Gen(0),
+		0x97: c.SMB__Gen(1),
+		0xA7: c.SMB__Gen(2),
+		0xB7: c.SMB__Gen(3),
+		0xC7: c.SMB__Gen(4),
+		0xD7: c.SMB__Gen(5),
+		0xE7: c.SMB__Gen(6),
+		0xF7: c.SMB__Gen(7),
+	}
+
+	c.execMapBitBranchCMOS = map[byte]func(uint8, uint8){
+		0x0F: c.BBR__gen(0),
+		0x1F: c.BBR__gen(1),
+		0x2F: c.BBR__gen(2),
+		0x3F: c.BBR__gen(3),
+		0x4F: c.BBR__gen(4),
+		0x5F: c.BBR__gen(5),
+		0x6F: c.BBR__gen(6),
+		0x7F: c.BBR__gen(7),
+		0x8F: c.BBS__gen(0),
+		0x9F: c.BBS__gen(1),
+		0xAF: c.BBS__gen(2),
+		0xBF: c.BBS__gen(3),
+		0xCF: c.BBS__gen(4),
+		0xDF: c.BBS__gen(5),
+		0xEF: c.BBS__gen(6),
+		0xFF: c.BBS__gen(7),
+	}
+
+	c.execMapShortCMOS = map[byte]func(uint16){
+		0x0C: c.TSB____a,
+		0x1C: c.TRB____a,
+		0x9C: c.STZ____a, 0x9E: c.STZ___ax,
+	}
+
 	_ = c.SetWriterPtr(0x0200)
 }
 
 // Does a single step of execution. If at an invalid instruction, the program
 // counter will not increment.
 //
-// Returns true if execution was successful, false if not. This can be used to
-// easily make an execution loop depending on the results of this method.
-func (c *Core) StepOnce() (valid bool) {
-	inst := c.Memory[c.PC]
-	valid = true
+// Returns are structured as valid for any, valid for NMOS, and valid CMOS in that
+// order.
+//
+// Returns are dependent on the `IncrementPCOnInvalidInstruction` feature flag:
+//
+// - If the feature flag is true: if the instruction was a valid NMOS instruction,
+// and if it was a valid CMOS instruction which includes the NOPs for future use.
+// CMOS instructions with `EnableCMOSInstructions` will return with an invalid
+// NMOS execution but valid CMOS execution (`true, false, true`).
+//
+// - If the feature flag is false: if the instruction was a valid NMOS instruction
+// in all returns.
+func (c *Core) StepOnce() (valid, validNMOS, validCMOS bool) {
+	var fOk, gOk, hOk, iOk, jOk, kOk, lOk bool
 
-	f, fOk := c.execMapByte[inst]
-	g, gOk := c.execMapShort[inst]
-	h, hOk := c.execMapNil[inst]
+	var f, i func(uint8)
+	var g, j func(uint16)
+	var h, k func()
+	var l func(uint8, uint8)
+
+	inst := c.Memory[c.PC]
+	valid, validNMOS, validCMOS = true, true, true
+
+	f, fOk = c.execMapByte[inst]
+	g, gOk = c.execMapShort[inst]
+	h, hOk = c.execMapNil[inst]
+
+	if c.Features.EnableCMOSInstructions {
+		i, iOk = c.execMapByteCMOS[inst]
+		j, jOk = c.execMapShortCMOS[inst]
+		k, kOk = c.execMapNilCMOS[inst]
+		l, lOk = c.execMapBitBranchCMOS[inst]
+	}
 
 	switch {
 	case fOk:
@@ -230,9 +331,43 @@ func (c *Core) StepOnce() (valid bool) {
 	case hOk:
 		h()
 
+	case iOk:
+		validNMOS = false
+		i(c.Memory[c.PC+1])
+
+	case jOk:
+		validNMOS = false
+		hi, lo := c.Memory[c.PC+1], c.Memory[c.PC+2]
+		v := (uint16(hi) << 8) | uint16(lo)
+		j(v)
+
+	case kOk:
+		validNMOS = false
+		k()
+
+	case lOk:
+		validNMOS = false
+		l(c.Memory[c.PC+1], c.Memory[c.PC+2])
+
 	default:
-		valid = false
+		validNMOS = false
+		validCMOS = false
+
+		if c.Features.IncrementPCOnInvalidInstruction {
+			switch inst & 0x0F {
+			case 0x03, 0x0B:
+				c.PC += 1
+				validCMOS = true
+			case 0x02, 0x04:
+				c.PC += 2
+				validCMOS = true
+			case 0x0C:
+				c.PC += 3
+				validCMOS = true
+			}
+		}
 	}
+	valid = validCMOS || validNMOS
 	return
 }
 

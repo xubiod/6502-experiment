@@ -38,3 +38,23 @@ func (c *Core) STY__ZPg(zp byte) { c.PC += 2; c.Memory[zp] = c.Y }
 
 // Store Y to Memory - Zero Page indexed with X
 func (c *Core) STY__ZPx(zp byte) { c.PC += 2; c.Memory[zp+c.X] = c.Y }
+
+// Store Zero to Memory - Absolute
+//
+// CMOS 65c02
+func (c *Core) STZ____a(addr uint16) { c.PC += 3; c.Memory[addr] = 0 }
+
+// Store Zero to Memory - Absolute indexed with X
+//
+// CMOS 65c02
+func (c *Core) STZ___ax(addr uint16) { c.PC += 3; c.Memory[addr+uint16(c.X)] = 0 }
+
+// Store Zero to Memory - Zero Page
+//
+// CMOS 65c02
+func (c *Core) STZ__ZPg(zp byte) { c.PC += 2; c.Memory[zp] = 0 }
+
+// Store Zero to Memory - Zero Page indexed with X
+//
+// CMOS 65c02
+func (c *Core) STZ__ZPx(zp byte) { c.PC += 2; c.Memory[zp+c.X] = 0 }
