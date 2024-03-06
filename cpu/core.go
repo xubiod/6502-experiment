@@ -154,7 +154,7 @@ func (c *Core) indirectZpY(zp byte) (addr uint16) {
 // Does the calculations for a zero-page indexed indirect to get the address.
 func (c *Core) indirectZpX(zp byte) (addr uint16) {
 	var lsb, msb byte
-	lsb = c.Memory[zp+c.X]
+	lsb = c.Memory[(zp+c.X)&0xFF]
 	msb = c.Memory[zp+c.X+1]
 
 	addr = uint16(msb) << 8 & uint16(lsb)

@@ -126,7 +126,7 @@ func (c *Core) ASL____A() { c.PC += 1; c.asl_impl(&c.A) }
 func (c *Core) ASL__ZPg(zp byte) { c.PC += 2; c.asl_impl(&c.Memory[zp]) }
 
 // Arithmetic Shift Left - Zero Page indexed with X
-func (c *Core) ASL__ZPx(zp byte) { c.PC += 2; c.asl_impl(&c.Memory[zp+c.X]) }
+func (c *Core) ASL__ZPx(zp byte) { c.PC += 2; c.asl_impl(&c.Memory[(zp+c.X)&0xFF]) }
 
 // Logical Shift Right - Absolute
 func (c *Core) LSR____a(addr uint16) { c.PC += 3; c.lsr_impl(&c.Memory[addr]) }
@@ -141,7 +141,7 @@ func (c *Core) LSR____A() { c.PC += 1; c.lsr_impl(&c.A) }
 func (c *Core) LSR__ZPg(zp byte) { c.PC += 2; c.lsr_impl(&c.Memory[zp]) }
 
 // Logical Shift Right - Zero Page indexed with X
-func (c *Core) LSR__ZPx(zp byte) { c.PC += 2; c.lsr_impl(&c.Memory[zp+c.X]) }
+func (c *Core) LSR__ZPx(zp byte) { c.PC += 2; c.lsr_impl(&c.Memory[(zp+c.X)&0xFF]) }
 
 // Rotate Bits Left - Absolute
 func (c *Core) ROL____a(addr uint16) { c.PC += 3; c.rol_impl(&c.Memory[addr]) }
@@ -156,7 +156,7 @@ func (c *Core) ROL____A() { c.PC += 1; c.rol_impl(&c.A) }
 func (c *Core) ROL__ZPg(zp byte) { c.PC += 2; c.rol_impl(&c.Memory[zp]) }
 
 // Rotate Bits Left - Zero Page indexed with X
-func (c *Core) ROL__ZPx(zp byte) { c.PC += 2; c.rol_impl(&c.Memory[zp+c.X]) }
+func (c *Core) ROL__ZPx(zp byte) { c.PC += 2; c.rol_impl(&c.Memory[(zp+c.X)&0xFF]) }
 
 // Rotate Bits Right - Absolute
 func (c *Core) ROR____a(addr uint16) { c.PC += 3; c.ror_impl(&c.Memory[addr]) }
@@ -171,4 +171,4 @@ func (c *Core) ROR____A() { c.PC += 1; c.ror_impl(&c.A) }
 func (c *Core) ROR__ZPg(zp byte) { c.PC += 2; c.ror_impl(&c.Memory[zp]) }
 
 // Rotate Bits Right - Zero Page indexed with X
-func (c *Core) ROR__ZPx(zp byte) { c.PC += 2; c.ror_impl(&c.Memory[zp+c.X]) }
+func (c *Core) ROR__ZPx(zp byte) { c.PC += 2; c.ror_impl(&c.Memory[(zp+c.X)&0xFF]) }

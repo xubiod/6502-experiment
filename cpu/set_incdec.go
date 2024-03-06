@@ -54,7 +54,7 @@ func (c *Core) INC___ax(addr uint16) { c.PC += 3; c.inc_impl(&c.Memory[addr+uint
 func (c *Core) INC__ZPg(zp byte) { c.PC += 2; c.inc_impl(&c.Memory[zp]) }
 
 // Increment Memory by One - Zero Page indexed with X
-func (c *Core) INC__ZPx(zp byte) { c.PC += 2; c.inc_impl(&c.Memory[zp+c.X]) }
+func (c *Core) INC__ZPx(zp byte) { c.PC += 2; c.inc_impl(&c.Memory[(zp+c.X)&0xFF]) }
 
 // Increment X by One - Implied
 func (c *Core) INX____i() { c.PC += 1; c.inc_impl(&c.X) }
@@ -72,7 +72,7 @@ func (c *Core) DEC___ax(addr uint16) { c.PC += 3; c.dec_impl(&c.Memory[addr+uint
 func (c *Core) DEC__ZPg(zp byte) { c.PC += 2; c.dec_impl(&c.Memory[zp]) }
 
 // Decrement Memory by One - Zero Page indexed with X
-func (c *Core) DEC__ZPx(zp byte) { c.PC += 2; c.dec_impl(&c.Memory[zp+c.X]) }
+func (c *Core) DEC__ZPx(zp byte) { c.PC += 2; c.dec_impl(&c.Memory[(zp+c.X)&0xFF]) }
 
 // Decrement X by One - Implied
 func (c *Core) DEX____i() { c.PC += 1; c.dec_impl(&c.X) }

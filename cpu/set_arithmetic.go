@@ -196,7 +196,7 @@ func (c *Core) ADC__ZPg(zp byte) { c.PC += 2; c.adc_impl(c.Memory[zp]) }
 func (c *Core) ADC_IZPx(zp byte) { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpX(zp)]) }
 
 // Add with Carry - Zero Page indexed with X
-func (c *Core) ADC__ZPx(zp byte) { c.PC += 2; c.adc_impl(c.Memory[zp+c.X]) }
+func (c *Core) ADC__ZPx(zp byte) { c.PC += 2; c.adc_impl(c.Memory[(zp+c.X)&0xFF]) }
 
 // Add with Carry - Zero Page Indirect Indexed with Y
 func (c *Core) ADC_IZPy(zp byte) { c.PC += 2; c.adc_impl(c.Memory[c.indirectZpY(zp)]) }
@@ -220,7 +220,7 @@ func (c *Core) SBC__Zpg(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[zp]) }
 func (c *Core) SBC_IZPx(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpX(zp)]) }
 
 // Subtract with Borrow - Zero Page indexed with X
-func (c *Core) SBC__ZPx(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[zp+c.X]) }
+func (c *Core) SBC__ZPx(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[(zp+c.X)&0xFF]) }
 
 // Subtract with Borrow - Zero Page Indirect Indexed with Y
 func (c *Core) SBC_IZPy(zp byte) { c.PC += 2; c.sbc_impl(c.Memory[c.indirectZpY(zp)]) }

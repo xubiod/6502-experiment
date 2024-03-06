@@ -76,7 +76,7 @@ func (c *Core) AND__ZPg(zp byte) { c.PC += 2; c.and_impl(c.Memory[zp]) }
 func (c *Core) AND_IZPx(zp byte) { c.PC += 2; c.and_impl(c.Memory[c.indirectZpX(zp)]) }
 
 // Bitwise AND Accumulator with Memory - Zero Page indexed with X
-func (c *Core) AND__ZPx(zp byte) { c.PC += 2; c.and_impl(c.Memory[zp+c.X]) }
+func (c *Core) AND__ZPx(zp byte) { c.PC += 2; c.and_impl(c.Memory[(zp+c.X)&0xFF]) }
 
 // Bitwise AND Accumulator with Memory - Zero Page Indirect Indexed with Y
 func (c *Core) AND_IZPy(zp byte) { c.PC += 2; c.and_impl(c.Memory[c.indirectZpY(zp)]) }
@@ -100,7 +100,7 @@ func (c *Core) ORA__ZPg(zp byte) { c.PC += 2; c.ora_impl(c.Memory[zp]) }
 func (c *Core) ORA_IZPx(zp byte) { c.PC += 2; c.ora_impl(c.Memory[c.indirectZpX(zp)]) }
 
 // Bitwise OR Accumulator with Memory - Zero Page indexed with X
-func (c *Core) ORA__ZPx(zp byte) { c.PC += 2; c.ora_impl(c.Memory[zp+c.X]) }
+func (c *Core) ORA__ZPx(zp byte) { c.PC += 2; c.ora_impl(c.Memory[(zp+c.X)&0xFF]) }
 
 // Bitwise OR Accumulator with Memory - Zero Page Indirect Indexed with Y
 func (c *Core) ORA_IZPy(zp byte) { c.PC += 2; c.ora_impl(c.Memory[c.indirectZpY(zp)]) }
@@ -124,7 +124,7 @@ func (c *Core) EOR__ZPg(zp byte) { c.PC += 2; c.eor_impl(c.Memory[zp]) }
 func (c *Core) EOR_IZPx(zp byte) { c.PC += 2; c.eor_impl(c.Memory[c.indirectZpX(zp)]) }
 
 // Bitwise Exclusive OR Accumulator with Memory - Zero Page indexed with X
-func (c *Core) EOR__ZPx(zp byte) { c.PC += 2; c.eor_impl(c.Memory[zp+c.X]) }
+func (c *Core) EOR__ZPx(zp byte) { c.PC += 2; c.eor_impl(c.Memory[(zp+c.X)&0xFF]) }
 
 // Bitwise Exclusive OR Accumulator with Memory - Zero Page Indirect Indexed with Y
 func (c *Core) EOR_IZPy(zp byte) { c.PC += 2; c.eor_impl(c.Memory[c.indirectZpY(zp)]) }

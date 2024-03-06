@@ -64,7 +64,7 @@ func (c *Core) CMP__ZPg(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[zp]) }
 func (c *Core) CMP_IZPx(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[c.indirectZpX(zp)]) }
 
 // Compare Memory with Accumulator - Zero Page indexed with X
-func (c *Core) CMP__ZPx(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[zp+c.X]) }
+func (c *Core) CMP__ZPx(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[(zp+c.X)&0xFF]) }
 
 // Compare Memory with Accumulator - Zero Page Indirect Indexed with Y
 func (c *Core) CMP_IZPy(zp byte) { c.PC += 2; c.cmp_impl(c.A, c.Memory[c.indirectZpY(zp)]) }
@@ -81,7 +81,7 @@ func (c *Core) CPX__ZPg(zp byte) { c.PC += 2; c.cmp_impl(c.X, c.Memory[zp]) }
 // func (c *Core) CPX_ax(addr uint16)  { c.cmp_impl(c.X, c.Memory[addr+uint16(c.X)]) }
 // func (c *Core) CPX_ay(addr uint16)  { c.cmp_impl(c.X, c.Memory[addr+uint16(c.Y)]) }
 // func (c *Core) CPX_IndirectZPx(zp byte) { c.cmp_impl(c.X, c.Memory[c.indirectZpX(zp)]) }
-// func (c *Core) CPX_ZPx(zp byte)         { c.cmp_impl(c.X, c.Memory[zp+c.X]) }
+// func (c *Core) CPX_ZPx(zp byte)         { c.cmp_impl(c.X, c.Memory[(zp+c.X)&0xFF]) }
 // func (c *Core) CPX_IndirectZPy(zp byte) { c.cmp_impl(c.X, c.Memory[c.indirectZpY(zp)]) }
 
 // Compare Memory with Y - Absolute
@@ -96,7 +96,7 @@ func (c *Core) CPY__ZPg(zp byte) { c.PC += 2; c.cmp_impl(c.Y, c.Memory[zp]) }
 // func (c *Core) CPY_ax(addr uint16)  { c.cmp_impl(c.Y, c.Memory[addr+uint16(c.X)]) }
 // func (c *Core) CPY_ay(addr uint16)  { c.cmp_impl(c.Y, c.Memory[addr+uint16(c.Y)]) }
 // func (c *Core) CPY_IndirectZPx(zp byte) { c.cmp_impl(c.Y, c.Memory[c.indirectZpX(zp)]) }
-// func (c *Core) CPY_ZPx(zp byte)         { c.cmp_impl(c.Y, c.Memory[zp+c.X]) }
+// func (c *Core) CPY_ZPx(zp byte)         { c.cmp_impl(c.Y, c.Memory[(zp+c.X)&0xFF]) }
 // func (c *Core) CPY_IndirectZPy(zp byte) { c.cmp_impl(c.Y, c.Memory[c.indirectZpY(zp)]) }
 
 // Bit Test Memory with Accumulator - Absolute
