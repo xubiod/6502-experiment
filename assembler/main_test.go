@@ -52,8 +52,6 @@ func TestAssembleResetRoutine(t *testing.T) {
 	LDX #$00
 	LDY #$00`
 
-	// questions := strings.Split(question, "\n")
-
 	answer := []byte{
 		0xa2, 0xff,
 		0x9a,
@@ -69,7 +67,6 @@ func TestAssembleResetRoutine(t *testing.T) {
 		0xa0, 0x00,
 	}
 
-	// for idx, q := range questions {
 	out, err := asm.PreprocessAndParse(question)
 	if err != nil {
 		t.Fatalf("assemble_reset_routine - deadass did not assemble:\n%s", err)
@@ -97,7 +94,6 @@ func TestAssembleFail(t *testing.T) {
 	LDX #$00
 	LDY #$00`
 
-	// for idx, q := range questions {
 	out, err := asm.PreprocessAndParse(question)
 	if err == nil {
 		t.Fatalf("assemble_fail - should have failed - did not")
@@ -116,7 +112,6 @@ func TestHCF(t *testing.T) {
 	question := `;
 	HCF`
 
-	// for idx, q := range questions {
 	out, err := asm.PreprocessAndParse(question)
 	if err == nil {
 		t.Fatalf("hcf - should have failed - did not")
@@ -135,8 +130,6 @@ func TestDataBlock(t *testing.T) {
 	question := `.DAT
 	000102030405060708090A0B0C0D0E0F
 	`
-
-	// questions := strings.Split(question, "\n")
 
 	answer := []byte{
 		0x00,
@@ -175,8 +168,6 @@ func TestDataMissingNibble(t *testing.T) {
 	0E0			; Missing a nibble, should be caught
 	`
 
-	// questions := strings.Split(question, "\n")
-
 	out, err := asm.PreprocessAndParse(question)
 	if err == nil {
 		t.Fatalf("missing_nibble - should have failed - did not")
@@ -196,7 +187,6 @@ func TestAssembleFailWithLabel(t *testing.T) {
 	question = question + strings.Repeat("\tNOP\n", 130)
 	question = question + "\tBEQ START\n"
 
-	// for idx, q := range questions {
 	out, err := asm.PreprocessAndParse(question)
 	if err == nil {
 		t.Fatalf("assemble_fail_with_labels - should have failed - did not")
