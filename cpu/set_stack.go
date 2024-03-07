@@ -44,6 +44,8 @@ func (c *Core) PLP____i() {
 	c.Flags = c.Memory[0x0100+uint16(c.S)] & ^FLAG_UNUSED
 }
 
+// 65c02 Instructions/Implementations below this line
+
 // Push X to Stack - Implied
 //
 // CMOS 65c02

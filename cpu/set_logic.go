@@ -129,6 +129,8 @@ func (c *Core) EOR__ZPx(zp byte) { c.PC += 2; c.eor_impl(c.Memory[(zp+c.X)&0xFF]
 // Bitwise Exclusive OR Accumulator with Memory - Zero Page Indirect Indexed with Y
 func (c *Core) EOR_IZPy(zp byte) { c.PC += 2; c.eor_impl(c.Memory[c.indirectZpY(zp)]) }
 
+// 65c02 Instructions/Implementations below this line
+
 // Bitwise AND Accumulator with Memory - Zero Page Indirect
 //
 // CMOS 65c02

@@ -39,6 +39,8 @@ func (c *Core) STY__ZPg(zp byte) { c.PC += 2; c.Memory[zp] = c.Y }
 // Store Y to Memory - Zero Page indexed with X
 func (c *Core) STY__ZPx(zp byte) { c.PC += 2; c.Memory[(zp+c.X)&0xFF] = c.Y }
 
+// 65c02 Instructions/Implementations below this line
+
 // Store Zero to Memory - Absolute
 //
 // CMOS 65c02

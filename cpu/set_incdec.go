@@ -80,6 +80,8 @@ func (c *Core) DEX____i() { c.PC += 1; c.dec_impl(&c.X) }
 // Decrement Y by One - Implied
 func (c *Core) DEY____i() { c.PC += 1; c.dec_impl(&c.Y) }
 
+// 65c02 Instructions/Implementations below this line
+
 // Increment Accumulator by One - Implied
 //
 // CMOS 65c02

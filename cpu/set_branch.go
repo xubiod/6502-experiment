@@ -76,6 +76,8 @@ func (c *Core) BVS__rel(raw uint8) {
 	}
 }
 
+// 65c02 Instructions/Implementations below this line
+
 // Branch Always - Relative
 //
 // CMOS 65c02

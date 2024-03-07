@@ -74,6 +74,8 @@ func (c *Core) LDY__ZPg(zp byte) { c.PC += 2; c.ld_impl(&c.Y, c.Memory[zp]) }
 // Load Memory into Y - Zero Page indexed with X
 func (c *Core) LDY__ZPx(zp byte) { c.PC += 2; c.ld_impl(&c.Y, c.Memory[(zp+c.X)&0xFF]) }
 
+// 65c02 Instructions/Implementations below this line
+
 // Load Memory into Accumulator - Zero Page Indirect
 //
 // CMOS 65c02

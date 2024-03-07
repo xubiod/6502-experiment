@@ -81,7 +81,11 @@ func (c *Core) RTI____i() {
 	c.PC = addr
 }
 
+// 65c02 Instructions/Implementations below this line
+
 // Jump - Indirect Absolute Indexed
+//
+// CMOS 65c02
 func (c *Core) JMP__Iax(addrIndirect uint16) {
 	c.JMP___Ia(addrIndirect + uint16(c.X))
 }

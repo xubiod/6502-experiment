@@ -21,6 +21,8 @@ func (c *Core) SEI____i() { c.PC += 1; c.Flags = c.Flags | FLAG_INTERRUPT_DISABL
 // Clear Overflow Flag - Implied
 func (c *Core) CLV____i() { c.PC += 1; c.Flags = c.Flags & ^FLAG_OVERFLOW }
 
+// 65c02 Instructions/Implementations below this line
+
 // Set Memory Bit - Func Generator
 //
 // This is like this because the opcode determines the bit, and there's no need to do

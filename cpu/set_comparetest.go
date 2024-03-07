@@ -78,12 +78,6 @@ func (c *Core) CPX__Imm(literal byte) { c.PC += 2; c.cmp_impl(c.X, literal) }
 // Compare Memory with X - Zero Page
 func (c *Core) CPX__ZPg(zp byte) { c.PC += 2; c.cmp_impl(c.X, c.Memory[zp]) }
 
-// func (c *Core) CPX_ax(addr uint16)  { c.cmp_impl(c.X, c.Memory[addr+uint16(c.X)]) }
-// func (c *Core) CPX_ay(addr uint16)  { c.cmp_impl(c.X, c.Memory[addr+uint16(c.Y)]) }
-// func (c *Core) CPX_IndirectZPx(zp byte) { c.cmp_impl(c.X, c.Memory[c.indirectZpX(zp)]) }
-// func (c *Core) CPX_ZPx(zp byte)         { c.cmp_impl(c.X, c.Memory[(zp+c.X)&0xFF]) }
-// func (c *Core) CPX_IndirectZPy(zp byte) { c.cmp_impl(c.X, c.Memory[c.indirectZpY(zp)]) }
-
 // Compare Memory with Y - Absolute
 func (c *Core) CPY____a(addr uint16) { c.PC += 3; c.cmp_impl(c.Y, c.Memory[addr]) }
 
@@ -93,19 +87,13 @@ func (c *Core) CPY__Imm(literal byte) { c.PC += 2; c.cmp_impl(c.Y, literal) }
 // Compare Memory with Y - Zero Page
 func (c *Core) CPY__ZPg(zp byte) { c.PC += 2; c.cmp_impl(c.Y, c.Memory[zp]) }
 
-// func (c *Core) CPY_ax(addr uint16)  { c.cmp_impl(c.Y, c.Memory[addr+uint16(c.X)]) }
-// func (c *Core) CPY_ay(addr uint16)  { c.cmp_impl(c.Y, c.Memory[addr+uint16(c.Y)]) }
-// func (c *Core) CPY_IndirectZPx(zp byte) { c.cmp_impl(c.Y, c.Memory[c.indirectZpX(zp)]) }
-// func (c *Core) CPY_ZPx(zp byte)         { c.cmp_impl(c.Y, c.Memory[(zp+c.X)&0xFF]) }
-// func (c *Core) CPY_IndirectZPy(zp byte) { c.cmp_impl(c.Y, c.Memory[c.indirectZpY(zp)]) }
-
 // Bit Test Memory with Accumulator - Absolute
 func (c *Core) BIT____a(addr uint16) { c.PC += 3; c.bit_impl(c.Memory[addr]) }
 
 // Bit Test Memory with Accumulator - Zero Page
 func (c *Core) BIT__ZPg(zp byte) { c.PC += 2; c.bit_impl(c.Memory[zp]) }
 
-// func (c *Core) BIT_Im(literal byte) { c.bit_impl(literal) }
+// 65c02 Instructions/Implementations below this line
 
 func (c *Core) trb_impl(loc uint16) {
 	what := c.Memory[loc]
