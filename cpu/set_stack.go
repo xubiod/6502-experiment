@@ -32,7 +32,7 @@ func (c *Core) PLA____i() {
 func (c *Core) PHP____i() {
 	c.PC += 1
 
-	c.Memory[0x0100+uint16(c.S)] = (c.Flags & ^FLAG_BREAK) & ^FLAG_UNUSED
+	c.Memory[0x0100+uint16(c.S)] = (c.Flags & ^FLAG_BREAK) | FLAG_UNUSED
 	c.S--
 }
 
@@ -41,7 +41,7 @@ func (c *Core) PLP____i() {
 	c.PC += 1
 
 	c.S++
-	c.Flags = c.Memory[0x0100+uint16(c.S)] & ^FLAG_UNUSED
+	c.Flags = c.Memory[0x0100+uint16(c.S)] | FLAG_UNUSED
 }
 
 // 65c02 Instructions/Implementations below this line

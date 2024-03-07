@@ -149,7 +149,7 @@ const (
 	FLAG_INTERRUPT_DISABLE                  // I - When set, interrupts are disabled.
 	FLAG_DECIMAL                            // D - When set, math operations are done with BCD. No other operation is affected by the status of this flag.
 	FLAG_BREAK                              // B - Set when a software interrupt happens with `BRK`.
-	FLAG_UNUSED                             // _ - This flag is not used by the 6502. The emulator masks it out during status push/pulls from the stack.
+	FLAG_UNUSED                             // _ - This flag is not used by the 6502. It is always set on the 6502.
 	FLAG_OVERFLOW                           // V - Set when the last operation resulted in a *signed overflow* if the numbers were interpreted as signed.
 	FLAG_NEGATIVE                           // N - Set when the last operation resulted as a negative number as a bit 7 check.
 )
@@ -313,6 +313,8 @@ func (c *Core) prepare() {
 		0x7C: c.JMP__Iax,
 		0x9C: c.STZ____a, 0x9E: c.STZ___ax,
 	}
+
+	c.Flags = c.Flags | FLAG_UNUSED
 
 	_ = c.SetWriterPtr(0x0200)
 }
