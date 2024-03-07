@@ -23,7 +23,7 @@ func (c *Core) BCC__rel(raw uint8) {
 // Branch on Carry Set - Relative
 func (c *Core) BCS__rel(raw uint8) {
 	c.PC += 2
-	if c.Flags&FLAG_CARRY != 0 {
+	if c.Flags&FLAG_CARRY > 0 {
 		c.PC += branchVal(raw)
 	}
 }
@@ -39,7 +39,7 @@ func (c *Core) BNE__rel(raw uint8) {
 // Branch on Result Zero - Relative
 func (c *Core) BEQ__rel(raw uint8) {
 	c.PC += 2
-	if c.Flags&FLAG_ZERO != 0 {
+	if c.Flags&FLAG_ZERO > 0 {
 		c.PC += branchVal(raw)
 	}
 }
@@ -55,7 +55,7 @@ func (c *Core) BPL__rel(raw uint8) {
 // Branch on Result Minus - Relative
 func (c *Core) BMI__rel(raw uint8) {
 	c.PC += 2
-	if c.Flags&FLAG_NEGATIVE != 0 {
+	if c.Flags&FLAG_NEGATIVE > 0 {
 		c.PC += branchVal(raw)
 	}
 }
@@ -71,7 +71,7 @@ func (c *Core) BVC__rel(raw uint8) {
 // Branch on Overflow Set - Relative
 func (c *Core) BVS__rel(raw uint8) {
 	c.PC += 2
-	if c.Flags&FLAG_OVERFLOW != 0 {
+	if c.Flags&FLAG_OVERFLOW > 0 {
 		c.PC += branchVal(raw)
 	}
 }
