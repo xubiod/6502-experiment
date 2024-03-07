@@ -49,10 +49,24 @@ type Core struct {
 	// bytes) as an operand.
 	execMapShort map[byte]func(uint16)
 
-	execMapNilCMOS       map[byte]func()
-	execMapByteCMOS      map[byte]func(uint8)
+	// The byte -> implementation map for instructions with no operands for 65c02
+	// instructions. Separated to make CMOS toggleable.
+	execMapNilCMOS map[byte]func()
+
+	// The byte -> implementation map for instructions with a byte as an operand
+	// for 65c02 instructions. Signed or not is instruction dependent, and separated
+	// to make CMOS toggleable.
+	execMapByteCMOS map[byte]func(uint8)
+
+	// The byte -> implementation map for instructions with two byte operands for
+	// 65c02 instructions, which are for the branch if bit set/cleared instructions
+	// for how unique their structure is. Separated to make CMOS toggleable.
 	execMapBitBranchCMOS map[byte]func(uint8, uint8)
-	execMapShortCMOS     map[byte]func(uint16)
+
+	// The byte -> implementation map for instructions with an unsigned short (2
+	// bytes) as an operand for 65c02 instructions. Separated to make CMOS
+	// toggleable.
+	execMapShortCMOS map[byte]func(uint16)
 
 	writingPointer uint16 // The pointer to writing to memory with `*Core.Write()`.
 }
