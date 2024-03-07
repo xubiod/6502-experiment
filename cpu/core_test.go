@@ -118,17 +118,17 @@ func TestArithmeticADC(t *testing.T) {
 	right_t := []byte{0x10, 0x50, 0x90, 0xD0, 0x10, 0x50, 0x90, 0xD0}
 
 	// should carry be set before adding?
-	caset_t := []byte{0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38} // 0xEA is a NOP, 0x38 is a SEC
+	carry_set_t := []byte{0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38} // 0xEA is a NOP, 0x38 is a SEC
 
 	// expected carry and overflow flags
-	carry_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
-	overf_t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
+	carry_out_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
+	overflow__t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
 
 	for idx, left := range lefts_t {
 		right := right_t[idx]
 
 		prg := []byte{
-			caset_t[idx], // either a NOP or SEC
+			carry_set_t[idx], // either a NOP or SEC
 
 			0xa9, left,
 			0x8d, 0x00, 0x00,
@@ -142,7 +142,7 @@ func TestArithmeticADC(t *testing.T) {
 		stdProcedure(c, prg)
 
 		var carryOnAdd byte = 0
-		if caset_t[idx] == 0x38 {
+		if carry_set_t[idx] == 0x38 {
 			carryOnAdd += 1
 		}
 
@@ -150,12 +150,12 @@ func TestArithmeticADC(t *testing.T) {
 			t.Errorf("adc fail - (%1x + %1x) - answer\texpected %1x\tgot %1x", left, right, left+right+carryOnAdd, c.A)
 		}
 
-		if c.Flags&FLAG_CARRY != carry_t[idx] {
-			t.Errorf("adc fail - (%1x + %1x) - carry\texpected %1x\tgot %1x", left, right, carry_t[idx], c.Flags&FLAG_CARRY)
+		if c.Flags&FLAG_CARRY != carry_out_t[idx] {
+			t.Errorf("adc fail - (%1x + %1x) - carry\texpected %1x\tgot %1x", left, right, carry_out_t[idx], c.Flags&FLAG_CARRY)
 		}
 
-		if c.Flags&FLAG_OVERFLOW != overf_t[idx] {
-			t.Errorf("adc fail - (%1x + %1x) - overf\texpected %1x\tgot %1x", left, right, overf_t[idx], c.Flags&FLAG_OVERFLOW)
+		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
+			t.Errorf("adc fail - (%1x + %1x) - V flag\texpected %1x\tgot %1x", left, right, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
 	}
 }
@@ -168,22 +168,22 @@ func TestDecimalADC(t *testing.T) {
 	right_t := []byte{0x10, 0x50, 0x90, 0xD0, 0x10, 0x50, 0x90, 0xD0}
 
 	// should carry be set before adding?
-	caset_t := []byte{0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA} // 0xEA is a NOP, 0x38 is a SEC
+	carry_set_t := []byte{0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA, 0xEA} // 0xEA is a NOP, 0x38 is a SEC
 
 	// results
-	answe_t := []byte{0x60, 0x00, 0x40, 0x80, 0x40, 0x80, 0xC0, 0x00} // verified with visual6502.org
+	results_t := []byte{0x60, 0x00, 0x40, 0x80, 0x40, 0x80, 0xC0, 0x00} // verified with visual6502.org
 
 	// expected flags
-	carry_t := []byte{0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01} // 0x01 means set
-	overf_t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
-	negat_t := []byte{0x00, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x80} // 0x80 means set
+	carry_out_t := []byte{0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01} // 0x01 means set
+	overflow__t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
+	negative__t := []byte{0x00, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x80} // 0x80 means set
 
 	for idx, left := range lefts_t {
 		right := right_t[idx]
 
 		prg := []byte{
 			0xf8,
-			caset_t[idx], // either a NOP or SEC
+			carry_set_t[idx], // either a NOP or SEC
 
 			0xa9, left,
 			0x8d, 0x00, 0x00,
@@ -196,20 +196,20 @@ func TestDecimalADC(t *testing.T) {
 
 		stdProcedure(c, prg)
 
-		if c.A != answe_t[idx] {
-			t.Errorf("adc decimal fail - (%1x + %1x) - answer\texpected %1x\tgot %1x", left, right, answe_t[idx], c.A)
+		if c.A != results_t[idx] {
+			t.Errorf("adc decimal fail - (%1x + %1x) - answer\texpected %1x\tgot %1x", left, right, results_t[idx], c.A)
 		}
 
-		if c.Flags&FLAG_CARRY != carry_t[idx] {
-			t.Errorf("adc decimal fail - (%1x + %1x) - carry\texpected %1x\tgot %1x", left, right, carry_t[idx], c.Flags&FLAG_CARRY)
+		if c.Flags&FLAG_CARRY != carry_out_t[idx] {
+			t.Errorf("adc decimal fail - (%1x + %1x) - carry\texpected %1x\tgot %1x", left, right, carry_out_t[idx], c.Flags&FLAG_CARRY)
 		}
 
-		if c.Flags&FLAG_OVERFLOW != overf_t[idx] {
-			t.Errorf("adc decimal fail - (%1x + %1x) - overf\texpected %1x\tgot %1x", left, right, overf_t[idx], c.Flags&FLAG_OVERFLOW)
+		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
+			t.Errorf("adc decimal fail - (%1x + %1x) - V flag\texpected %1x\tgot %1x", left, right, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
 
-		if c.Flags&FLAG_NEGATIVE != negat_t[idx] {
-			t.Errorf("adc decimal fail - (%1x + %1x) - negat\texpected %1x\tgot %1x", left, right, negat_t[idx], c.Flags&FLAG_NEGATIVE)
+		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
+			t.Errorf("adc decimal fail - (%1x + %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
 	}
 }
@@ -222,17 +222,17 @@ func TestArithmeticSBC(t *testing.T) {
 	lefts_t := []byte{0xF0, 0xB0, 0x70, 0x30, 0xF0, 0xB0, 0x70, 0x30}
 
 	// should carry be set before subtracting?
-	caset_t := []byte{0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38} // 0xEA is a NOP, 0x38 is a SEC
+	carry_set_t := []byte{0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38, 0xEA, 0x38} // 0xEA is a NOP, 0x38 is a SEC
 
 	// expected carry and overflow flags
-	carry_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
-	overf_t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
+	carry_out_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
+	overflow__t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
 
 	for idx, left := range lefts_t {
 		right := right_t[idx]
 
 		prg := []byte{
-			caset_t[idx], // either a NOP or SEC
+			carry_set_t[idx], // either a NOP or SEC
 
 			0xa9, left,
 			0x8d, 0x00, 0x00,
@@ -246,7 +246,7 @@ func TestArithmeticSBC(t *testing.T) {
 		stdProcedure(c, prg)
 
 		var carryOnSub byte = 0
-		if caset_t[idx] == 0x38 {
+		if carry_set_t[idx] == 0x38 {
 			carryOnSub += 1
 		}
 
@@ -257,12 +257,12 @@ func TestArithmeticSBC(t *testing.T) {
 			t.Errorf("sbc fail - (%1x - %1x) - answer\texpected %1x\tgot %1x", right, left, r, c.A)
 		}
 
-		if c.Flags&FLAG_CARRY != carry_t[idx] {
-			t.Errorf("sbc fail - (%1x - %1x) - carry\texpected %1x\tgot %1x", right, left, carry_t[idx], c.Flags&FLAG_CARRY)
+		if c.Flags&FLAG_CARRY != carry_out_t[idx] {
+			t.Errorf("sbc fail - (%1x - %1x) - carry\texpected %1x\tgot %1x", right, left, carry_out_t[idx], c.Flags&FLAG_CARRY)
 		}
 
-		if c.Flags&FLAG_OVERFLOW != overf_t[idx] {
-			t.Errorf("sbc fail - (%1x - %1x) - overf\texpected %1x\tgot %1x", right, left, overf_t[idx], c.Flags&FLAG_OVERFLOW)
+		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
+			t.Errorf("sbc fail - (%1x - %1x) - V flag\texpected %1x\tgot %1x", right, left, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
 	}
 }
@@ -275,22 +275,22 @@ func TestDecimalSBC(t *testing.T) {
 	right_t := []byte{0x50, 0x50, 0x50, 0x50, 0xD0, 0xD0, 0xD0, 0xD0}
 
 	// should carry be set before adding?
-	caset_t := []byte{0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38} // 0xEA is a NOP, 0x38 is a SEC
+	carry_set_t := []byte{0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38, 0x38} // 0xEA is a NOP, 0x38 is a SEC
 
 	// results
-	answe_t := []byte{0x00, 0x40, 0x80, 0x20, 0x80, 0x20, 0x60, 0xa0} // verified with visual6502.org
+	results_t := []byte{0x00, 0x40, 0x80, 0x20, 0x80, 0x20, 0x60, 0xa0} // verified with visual6502.org
 
 	// expected flags
-	carry_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
-	overf_t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
-	negat_t := []byte{0x00, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x80} // 0x80 means set
+	carry_out_t := []byte{0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01, 0x01} // 0x01 means set
+	overflow__t := []byte{0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00} // 0x40 means set
+	negative__t := []byte{0x00, 0x80, 0x80, 0x00, 0x80, 0x00, 0x00, 0x80} // 0x80 means set
 
 	for idx, left := range lefts_t {
 		right := right_t[idx]
 
 		prg := []byte{
 			0xf8,
-			caset_t[idx], // either a NOP or SEC
+			carry_set_t[idx], // either a NOP or SEC
 
 			0xa9, left,
 			0x8d, 0x00, 0x00,
@@ -303,20 +303,20 @@ func TestDecimalSBC(t *testing.T) {
 
 		stdProcedure(c, prg)
 
-		if c.A != answe_t[idx] {
-			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - answer\texpected %1x\tgot %1x", left, right, answe_t[idx], c.A)
+		if c.A != results_t[idx] {
+			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - answer\texpected %1x\tgot %1x", left, right, results_t[idx], c.A)
 		}
 
-		if c.Flags&FLAG_CARRY != carry_t[idx] {
-			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - carry\texpected %1x\tgot %1x", left, right, carry_t[idx], c.Flags&FLAG_CARRY)
+		if c.Flags&FLAG_CARRY != carry_out_t[idx] {
+			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - carry\texpected %1x\tgot %1x", left, right, carry_out_t[idx], c.Flags&FLAG_CARRY)
 		}
 
-		if c.Flags&FLAG_OVERFLOW != overf_t[idx] {
-			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - overf\texpected %1x\tgot %1x", left, right, overf_t[idx], c.Flags&FLAG_OVERFLOW)
+		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
+			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - V flag\texpected %1x\tgot %1x", left, right, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
 
-		if c.Flags&FLAG_NEGATIVE != negat_t[idx] {
-			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - negat\texpected %1x\tgot %1x", left, right, negat_t[idx], c.Flags&FLAG_NEGATIVE)
+		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
+			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
 	}
 }
