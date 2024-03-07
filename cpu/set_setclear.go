@@ -29,7 +29,7 @@ func (c *Core) CLV____i() { c.PC += 1; c.Flags = c.Flags & ^FLAG_OVERFLOW }
 // this over and over
 //
 // CMOS 65c02
-func (c *Core) SMB__Gen(bit uint) func(zp byte) {
+func (c *Core) SMB_G(bit uint) func(zp byte) {
 	if bit > 7 {
 		panic("can only check bits from 0 to 7")
 	}
@@ -44,7 +44,7 @@ func (c *Core) SMB__Gen(bit uint) func(zp byte) {
 // this over and over
 //
 // CMOS 65c02
-func (c *Core) RMB__Gen(bit uint) func(zp byte) {
+func (c *Core) RMB_G(bit uint) func(zp byte) {
 	if bit > 7 {
 		panic("can only check bits from 0 to 7")
 	}
