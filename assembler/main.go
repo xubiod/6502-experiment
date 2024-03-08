@@ -18,11 +18,36 @@ const (
 	B_REM
 )
 
+// An Assembler hold all of the data responsible for assembling assembly language
+// to byte code for a 6502 processor.
+//
+// Syntax is available in a more human-readable format with `README.md`.
 type Assembler struct {
-	Labels          map[string]MemLocation6502
-	CurrentLocation MemLocation6502
-	Line            uint16
+	// A map for strings to locations in memory. Preprocessing fills this map
+	// while parsing uses it appropriately.
+	//
+	// Parsing treats labels as "copy and paste", treating relative addressed
+	// instructions appropriately being the only exception.
+	Labels map[string]MemLocation6502
 
+	// The current memory location during the assembly process.
+	//
+	// Preprocessing uses this to keep track of where labels should be within
+	// memory.
+	//
+	// Parsing uses this with labels when they are used in relative instructions
+	// like branches to make the value for branches correct.
+	CurrentLocation MemLocation6502
+
+	// The current line number being processed.
+	//
+	// Parsing uses this for error reporting.
+	Line uint16
+
+	// The current processing mode.
+	//
+	// Parsing uses this to know when to parse instructions, data blocks, or
+	// completely ignore for remark blocks.
 	processingMode BlockType
 }
 
@@ -36,40 +61,45 @@ var (
 	ErrHCF = errors.New("halt and catch fire? so funny hehe haha")
 )
 
+// Combines the error, raw line, and current line number the assembler was parsing
+// into one error to simplify debugging the program being assembled.
 func (a *Assembler) appendLine(err error, rawLine string) error {
 	return fmt.Errorf("%s (line %d)\n\t-> %d | %s", err, a.Line, a.Line, rawLine)
 }
 
+// Creates and sets up an Assembler for use.
 func New() *Assembler {
 	return &Assembler{CurrentLocation: 0x200, Labels: make(map[string]MemLocation6502), processingMode: B_TEXT}
 }
 
 const (
-	INST_PATTERN string = `^([a-z]{3})`
+	INST_PATTERN string = `^([a-z]{3})` // Constant for what an instruction looks like. Used by all instruction regex patterns.
 )
 
 var (
-	reLabel = regexp.MustCompile(`^[A-Za-z_]\w*:`)
-	reBlock = regexp.MustCompile(`^\.\w+$`)
+	reLabel = regexp.MustCompile(`^[A-Za-z_]\w*:`) // Regex for a label declaration pattern.
+	reBlock = regexp.MustCompile(`^\.\w+$`)        // Regex for a block pattern.
 
-	reIZPgY     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2})\),y`)
-	reIZPgX     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2}),x\)`)
-	reIAbs      = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{4})\)`)
-	reAbsY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),y`)
-	reAbsX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),x`)
-	reZPgY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),y`)
-	reZPgX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),x`)
-	reAbs       = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4})`)
-	reOneByte   = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2})`)
-	reLiteral   = regexp.MustCompile(INST_PATTERN + `\s+#\$([0-9a-f]{2})`)
-	reNoOperand = regexp.MustCompile(INST_PATTERN)
+	reIZPgY     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2})\),y`) // Regex for an indirect zero page indirect indexed with Y instruction.
+	reIZPgX     = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{2}),x\)`) // Regex for an indirect zero page indexed indirect instruction.
+	reIAbs      = regexp.MustCompile(INST_PATTERN + `\s+\(\$([0-9a-f]{4})\)`)   // Regex for an indirect absolute instruction.
+	reAbsY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),y`)     // Regex for an absolute address indexed with Y instruction.
+	reAbsX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4}),x`)     // Regex for an absolute address indexed with X instruction.
+	reZPgY      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),y`)     // Regex for a zero page indexed with Y instruction.
+	reZPgX      = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2}),x`)     // Regex for a zero page indexed with X instruction.
+	reAbs       = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{4})`)       // Regex for an absolute address instruction.
+	reOneByte   = regexp.MustCompile(INST_PATTERN + `\s+\$([0-9a-f]{2})`)       // Regex for a single byte operand instruction.
+	reLiteral   = regexp.MustCompile(INST_PATTERN + `\s+#\$([0-9a-f]{2})`)      // Regex for an immediate operand instruction.
+	reNoOperand = regexp.MustCompile(INST_PATTERN)                              // Regex for the basic instruction with no operands.
 
-	reHCF = regexp.MustCompile(`^hcf`)
+	reHCF = regexp.MustCompile(`^hcf`) // Regex for a string starting with "hcf"
 
 	allWhitespace = regexp.MustCompile(`\s`)
 )
 
 var (
+	// Instructions that have an zero page address as an operand for an indirect
+	// indexed with Y value (1 byte).
 	TB_IZPgY = map[string]byte{
 		"ora": 0x11,
 		"and": 0x31,
@@ -80,6 +110,9 @@ var (
 		"cmp": 0xD1,
 		"sbc": 0xF1,
 	}
+
+	// Instructions that have an zero page address as an operand for an indirect
+	// value indexed with X (1 byte).
 	TB_IZPgX = map[string]byte{
 		"ora": 0x01,
 		"and": 0x21,
@@ -90,9 +123,15 @@ var (
 		"cmp": 0xC1,
 		"sbc": 0xE1,
 	}
+
+	// Instructions that have an absolute address as an operand for an indirect
+	// value (2 bytes).
 	TB_IAbs = map[string]byte{
 		"jmp": 0x6c,
 	}
+
+	// Instructions that have an absolute address as an operand for indexed with
+	// Y (2 bytes).
 	TB_AbsY = map[string]byte{
 		"ora": 0x09,
 		"and": 0x29,
@@ -105,6 +144,9 @@ var (
 
 		"ldx": 0xBE,
 	}
+
+	// Instructions that have an absolute address as an operand for indexed with
+	// X (2 bytes).
 	TB_AbsX = map[string]byte{
 		"ora": 0x1D, "asl": 0x1E,
 		"and": 0x3D, "rol": 0x3E,
@@ -115,10 +157,16 @@ var (
 		"cmp": 0xDD, "dec": 0xDE,
 		"sbc": 0xFD, "inc": 0xFE,
 	}
+
+	// Instructions that have a zero page address as an operand for indexing with
+	// Y (1 byte).
 	TB_ZPgY = map[string]byte{
 		"stx": 0x96,
 		"ldx": 0xB6,
 	}
+
+	// Instructions that have a zero page address as an operand for indexing with
+	// X (1 byte).
 	TB_ZPgX = map[string]byte{
 		"ora": 0x15, "asl": 0x16,
 		"and": 0x35, "rol": 0x36,
@@ -129,6 +177,8 @@ var (
 		"cmp": 0xD5, "dec": 0xD6,
 		"sbc": 0xF5, "inc": 0xF6,
 	}
+
+	// Instructions that have an absolute address as an operand (2 bytes).
 	TB_Abs = map[string]byte{
 		"ora": 0x0D, "asl": 0x0E,
 		"jsr": 0x20, "bit": 0x2C, "and": 0x2D, "rol": 0x2E,
@@ -139,6 +189,8 @@ var (
 		"cpy": 0xCC, "cmp": 0xCD, "dec": 0xCE,
 		"cpx": 0xEC, "sbc": 0xED, "inc": 0xEE,
 	}
+
+	// Instructions that have a signed byte/relative jump as an operand (1 byte).
 	TB_Relative = map[string]byte{
 		"bpl": 0x10,
 		"bmi": 0x30,
@@ -149,6 +201,8 @@ var (
 		"bne": 0xD0,
 		"beq": 0xF0,
 	}
+
+	// Instructions that have an immediate as an operand (1 byte).
 	TB_Literal = map[string]byte{
 		"ldy": 0xA0,
 		"cpy": 0xC0,
@@ -158,6 +212,8 @@ var (
 		"eor": 0x49,
 		"adc": 0x69,
 	}
+
+	// Instructions that have a zero page address as an operand (1 byte).
 	TB_Zp = map[string]byte{
 		"ora": 0x05, "asl": 0x06,
 		"bit": 0x24, "and": 0x25, "rol": 0x26,
@@ -168,6 +224,8 @@ var (
 		"cpy": 0xC4, "cmp": 0xC5, "dec": 0xC6,
 		"cpx": 0xE4, "sbc": 0xE5, "inc": 0xE6,
 	}
+
+	// Instructions that have no operands.
 	TB_NoOperand = map[string]byte{
 		"brk": 0x00, "php": 0x08, "asl": 0x0A,
 		"clc": 0x18,
@@ -188,6 +246,13 @@ var (
 	}
 )
 
+// Does the preprocessing pass on the given line.
+//
+// Preprocessing does label discovery and transverses a line while appropriately
+// accommodating how much memory instructions would take when converted to byte
+// code.
+//
+// This fills up the `*Assembler.Labels` for the parsing pass.
 func (a *Assembler) PreprocessLine(line string) {
 	line, _, _ = strings.Cut(line, ";")
 
@@ -238,10 +303,15 @@ func (a *Assembler) PreprocessLine(line string) {
 	}
 }
 
+// Resets the state for the parsing pass after the preprocessing pass finishes.
 func (a *Assembler) PreprocessFinish() {
 	a.CurrentLocation = 0x200
 }
 
+// Preprocesses a string like it was a file, breaking on newlines (`\n`). Calls
+// `PreprocessLine` on these lines.
+//
+// After all lines are preprocessed, `PreprocessFinish` is called.
 func (a *Assembler) Preprocess(prg string) {
 	for _, line := range strings.Split(prg, "\n") {
 		a.PreprocessLine(line)
@@ -249,6 +319,13 @@ func (a *Assembler) Preprocess(prg string) {
 	a.PreprocessFinish()
 }
 
+// Does the parsing pass on the given line.
+//
+// Parsing uses regular expression patterns that are compiled with `*regexp.MustCompile`
+// for efficiency and more of a guarantee that patterns are valid.
+//
+// Syntax is elaborated in the `README.md` file, and should be trusted as what
+// the assembler sees as valid in a more human-readable way.
 func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 	line, _, _ = strings.Cut(line, ";")
 
@@ -393,6 +470,12 @@ func (a *Assembler) ParseLine(line string) (out []byte, err error) {
 	return
 }
 
+// Parses a string like it was a file, breaking on newlines (`\n`). Calls `ParseLine`
+// on these lines.
+//
+// If `ParseLine` errors, the returned byte slice is emptied and the line that
+// errored is appended to the error before returning it back. This is done for
+// debugging simplicity.
 func (a *Assembler) Parse(prg string) (out []byte, err error) {
 	a.Line = 1
 	var working []byte
@@ -409,12 +492,24 @@ func (a *Assembler) Parse(prg string) (out []byte, err error) {
 	return
 }
 
+// Executes `Preprocess` followed by `Parse`. The returns in `Parse` are returned
+// with no modification.
 func (a *Assembler) PreprocessAndParse(prg string) (out []byte, err error) {
 	a.Preprocess(prg)
 	out, err = a.Parse(prg)
 	return
 }
 
+// Generates the bytecode for an instruction with one short/two byte operand.
+//
+// The contents of `subs` are expected to be the results of a `*regexp.Regexp.FindStringSubmatch`
+// with no modifications to it.
+//
+// This reads from `opTable` but does not modify it. The value at the `out` pointer
+// **will be overwritten**, and the value at the `mp` pointer is incremented twice.
+//
+// Output is the opcode, the low byte of the operand, and the high byte of the
+// operand, in that order.
 func operationShort(subs []string, opTable *map[string]byte, out *[]byte, mp *MemLocation6502) (err error) {
 	op, ok := (*opTable)[subs[1]]
 	if !ok {
@@ -430,6 +525,15 @@ func operationShort(subs []string, opTable *map[string]byte, out *[]byte, mp *Me
 	return
 }
 
+// Generates the bytecode for an instruction with one byte operand.
+//
+// The contents of `subs` are expected to be the results of a `*regexp.Regexp.FindStringSubmatch`
+// with no modifications to it.
+//
+// This reads from `opTable` but does not modify it. The value at the `out` pointer
+// **will be overwritten**, and the value at the `mp` pointer is incremented twice.
+//
+// Output is the opcode and the operand, in that order.
 func operationByte(subs []string, opTable *map[string]byte, out *[]byte, mp *MemLocation6502) (err error) {
 	op, ok := (*opTable)[subs[1]]
 	if !ok {
