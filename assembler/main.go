@@ -189,7 +189,7 @@ var (
 )
 
 func (a *Assembler) PreprocessLine(line string) {
-	line = strings.Split(line, ";")[0]
+	line, _, _ = strings.Cut(line, ";")
 
 	if len(strings.TrimSpace(line)) == 0 {
 		return
