@@ -480,6 +480,49 @@ func (c *Core) StateDump() (out string) {
 	return
 }
 
+// A general wrapper for dumping segments of memory within the Core.
+//
+// If `start` is larger than `end`, they are swapped.
+//
+// The starting address is rounded down to the lowest high nibble (`A4` -> `A0`,
+// `FF` -> `F0`) and at minimum this will return the contents of the next 16 bytes
+// within the CPU's memory.
+//
+// If the highlight address is within the range, it is surrounded with square
+// brackets. If `highlightColoured` is true, the location will be coloured yellow
+// using control codes. This does not work out of the box on Windows.
+func (c *Core) memoryDump(start, end, highlight uint16, highlightColoured bool) (out string) {
+	if start > end {
+		start, end = end, start
+	}
+
+	var point uint16 = start & 0xFFF0
+	var i uint16
+	var width uint16 = 16 // 8 is a good smaller width
+
+	for ; point < end; point += width {
+		out += fmt.Sprintf("0x%04X |", point)
+		for i = 0; i < width; i++ {
+			if point+i == highlight {
+				if highlightColoured {
+					out += "\033[33m"
+				}
+				out += "["
+			} else {
+				out += " "
+			}
+			out += fmt.Sprintf("%02x", c.Memory[point+i])
+			if point+i == highlight {
+				out += "]"
+				if highlightColoured {
+					out += "\033[0m"
+				}
+			}
+		}
+	}
+	return out
+}
+
 // Returns the stack dump for printing to console, or any other human-readable
 // logging format. If coloured is true, it adds characters to colour the output
 // for terminals, which will not be supported by Windows out of the box.
@@ -493,30 +536,8 @@ func (c *Core) StateDump() (out string) {
 // numbers are in hexadecimal.
 func (c *Core) StackDump(coloured bool) (out string) {
 	out = "Full Stack:"
-	var point uint16 = 0x0100 + (uint16(c.S & 0xF0))
-	var i uint16
-	var width uint16 = 16 // 8 is a good smaller width
+	out = c.memoryDump(0x0100+uint16(c.S), 0x01FF, 0x0100+uint16(c.S), true)
 
-	for ; point < 0x01FF; point += width {
-		out += fmt.Sprintf("\n\t0x%04X |", point)
-		for i = 0; i < width; i++ {
-			if point+i == 0x0100+uint16(c.S) {
-				if coloured {
-					out += "\033[33m"
-				}
-				out += "["
-			} else {
-				out += " "
-			}
-			out += fmt.Sprintf("%02x", c.Memory[point+i])
-			if point+i == 0x0100+uint16(c.S) {
-				out += "]"
-				if coloured {
-					out += "\033[0m"
-				}
-			}
-		}
-	}
 	return out
 }
 
