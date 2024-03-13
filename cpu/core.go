@@ -481,27 +481,37 @@ func (c *Core) StateDump() (out string) {
 }
 
 // Returns the stack dump for printing to console, or any other human-readable
-// logging format.
+// logging format. If coloured is true, it adds characters to colour the output
+// for terminals, which will not be supported by Windows out of the box.
 //
 // The output is a general memory output, starting at the high nibble of the stack
 // pointer (for example, if the stack pointer was `B4`, the output starts at
 // address`0x01B0`) and continues to the end of the stack at address `0x01FF`.
 //
-// There are 16 bytes per line in the resulting stack dump, with `<` added to the
-// end of the value where the stack pointer is actually pointing to. All numbers
-// are in hexadecimal.
-func (c *Core) StackDump() (out string) {
+// There are 16 bytes per line in the resulting stack dump, with square brackets
+// added around the value where the stack pointer is actually pointing to. All
+// numbers are in hexadecimal.
+func (c *Core) StackDump(coloured bool) (out string) {
 	out = "Full Stack:"
 	var point uint16 = 0x0100 + (uint16(c.S & 0xF0))
 	var i uint16
 	for ; point < 0x01FF; point += 16 {
-		out += fmt.Sprintf("\n\t0x%04X | ", point)
+		out += fmt.Sprintf("\n\t0x%04X |", point)
 		for i = 0; i < 16; i++ {
-			out += fmt.Sprintf("%02x", c.Memory[point+i])
 			if point+i == 0x0100+uint16(c.S) {
-				out += "<"
+				if coloured {
+					out += "\033[33m"
+				}
+				out += "["
 			} else {
 				out += " "
+			}
+			out += fmt.Sprintf("%02x", c.Memory[point+i])
+			if point+i == 0x0100+uint16(c.S) {
+				out += "]"
+				if coloured {
+					out += "\033[0m"
+				}
 			}
 		}
 	}
@@ -510,9 +520,9 @@ func (c *Core) StackDump() (out string) {
 
 // Returns a combination of all the dump methods for a Core as one string.
 //
-// See `*Core.StateDump()` and `*Core.StackDump()` for a complete documentation;
-// in short the processor state is outputted, followed by a dump of the stack
-// starting at the stack pointer.
-func (c *Core) CompleteDump() string {
-	return c.StateDump() + "\n\n" + c.StackDump()
+// See `*Core.StateDump` and `*Core.StackDump` for a complete documentation; in
+// short the processor state is outputted, followed by a dump of the stack starting
+// at the stack pointer.
+func (c *Core) CompleteDump(coloured bool) string {
+	return c.StateDump() + "\n\n" + c.StackDump(coloured)
 }

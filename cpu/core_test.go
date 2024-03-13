@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"runtime"
 	"strings"
 	"testing"
 	"xubiod/6502-experiment/assembler"
@@ -112,7 +113,7 @@ func TestResetRoutine(t *testing.T) {
 	if c.PC != 0x020E {
 		t.Errorf("program counter not 20E, was \"%1X\"", c.PC)
 	}
-	t.Log("\n" + c.CompleteDump())
+	t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 }
 
 func TestArithmeticADC(t *testing.T) {
@@ -162,7 +163,7 @@ func TestArithmeticADC(t *testing.T) {
 		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
 			t.Errorf("adc fail - (%1x + %1x) - V flag\texpected %1x\tgot %1x", left, right, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
-		t.Log("\n" + c.CompleteDump())
+		t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 	}
 }
 
@@ -217,7 +218,7 @@ func TestDecimalADC(t *testing.T) {
 		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
 			t.Errorf("adc decimal fail - (%1x + %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
-		t.Log("\n" + c.CompleteDump())
+		t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 	}
 }
 
@@ -271,7 +272,7 @@ func TestArithmeticSBC(t *testing.T) {
 		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
 			t.Errorf("sbc fail - (%1x - %1x) - V flag\texpected %1x\tgot %1x", right, left, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
-		t.Log("\n" + c.CompleteDump())
+		t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 	}
 }
 
@@ -326,7 +327,7 @@ func TestDecimalSBC(t *testing.T) {
 		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
 			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
-		t.Log("\n" + c.CompleteDump())
+		t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 	}
 }
 
@@ -350,7 +351,7 @@ func TestGeneralStackOps(t *testing.T) {
 		}
 	}
 
-	t.Log("\n" + c.CompleteDump())
+	t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
 }
 
 // Writes reset procedure followed by the given program. Goes into a standard execution

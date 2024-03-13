@@ -1,6 +1,9 @@
 package cpu
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
 // Break - Implied
 func (c *Core) BRK____i() {
@@ -25,7 +28,7 @@ func (c *Core) BRK____i() {
 	c.PC = (uint16(c.Memory[0xFFFF]) << 8) | uint16(c.Memory[0xFFFE])
 
 	if c.Features.ConsoleOutOnBreak {
-		fmt.Println("Break!\n\n" + c.CompleteDump() + "\n")
+		fmt.Println("Break!\n\n" + c.CompleteDump(runtime.GOOS != "windows") + "\n")
 	}
 }
 
