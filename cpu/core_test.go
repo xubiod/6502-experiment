@@ -1,7 +1,9 @@
 package cpu
 
 import (
+	"strings"
 	"testing"
+	"xubiod/6502-experiment/assembler"
 )
 
 func TestExists(t *testing.T) {
@@ -329,17 +331,26 @@ func TestDecimalSBC(t *testing.T) {
 }
 
 func TestGeneralStackOps(t *testing.T) {
-	// var prg []byte
+	var prg []byte
+	loopCount := 32
 
-	// c := NewCore()
-	// asm := assembler.New()
+	c := NewCore()
+	asm := assembler.New()
 
-	// prg, _ = asm.Parse("LDX #$01\n" + strings.Repeat("TXA\nPHA\nINX\n", 32))
+	prg, _ = asm.Parse("LDX #$00\n" + strings.Repeat("TXA\nPHA\nINX\n", loopCount))
 
-	// stdProcedure(c, prg)
+	stdProcedure(c, prg)
 
-	// // incomplete test
-	// t.Fail()
+	var atStack byte
+
+	for number := range loopCount {
+		atStack = c.Memory[0x01FF-uint16(number)]
+		if atStack != byte(number) {
+			t.Errorf("general stack fail - expected %02x\tgot %02x", number, atStack)
+		}
+	}
+
+	t.Log("\n" + c.CompleteDump())
 }
 
 // Writes reset procedure followed by the given program. Goes into a standard execution
