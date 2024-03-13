@@ -143,6 +143,11 @@ type CoreFeatureFlags struct {
 	// Prints to console whenever a `BRK` is encountered. See `*Core.CompleteDump()`
 	// for more about what is printed to console.
 	//
+	// At the time of writing, coloured output is OS-dependent using control codes,
+	// and running on the Windows operating system will lead to uncoloured output.
+	// This is simply determined with a runtime check, can cannot currently be
+	// toggled otherwise.
+	//
 	// This is defaulted to true.
 	ConsoleOutOnBreak bool
 }
@@ -559,9 +564,9 @@ func (c *Core) ProgramCounterDump(coloured bool) (out string) {
 
 // Returns a combination of all the dump methods for a Core as one string.
 //
-// See `*Core.StateDump` and `*Core.StackDump` for a complete documentation; in
-// short the processor state is outputted, followed by a dump of the stack starting
-// at the stack pointer.
+// See `*Core.StateDump`, `*Core.StackDump`, and `*Core.ProgramCounterDump` for
+// a complete documentation; in short the processor state is outputted, followed
+// by a dump of the stack starting at the stack pointer.
 func (c *Core) CompleteDump(coloured bool) string {
 	return c.StateDump() + "\n" + c.StackDump(coloured) + "\n" + c.ProgramCounterDump(coloured)
 }
