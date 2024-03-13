@@ -469,7 +469,8 @@ func (c *Core) Write(what []byte) (n int) {
 //
 //	Negative, oVerflow, Break, Decimal, Interrupt disable, Zero, Carry
 func (c *Core) StateDump() (out string) {
-	out = fmt.Sprintf("PC: %04x | S: %02x | A: %02x | X: %02x | Y: %02x | Fl: ", c.PC, c.S, c.A, c.X, c.Y)
+	out = fmt.Sprintf("PC: %04x | S: %02x | A: %02x | X: %02x | Y: %02x | Fl: ",
+		c.PC, c.S, c.A, c.X, c.Y)
 	for idx, chr := range "nv-bdizc" {
 		realRune := chr
 		if c.Flags<<idx&0b10000000 > 0 && chr != '-' {
@@ -491,7 +492,7 @@ func (c *Core) StateDump() (out string) {
 // If the highlight address is within the range, it is surrounded with square
 // brackets. If `highlightColoured` is true, the location will be coloured yellow
 // using control codes. This does not work out of the box on Windows.
-func (c *Core) memoryDump(start, end, highlight uint16, highlightColoured bool) (out string) {
+func (c *Core) MemoryDump(start, end, highlight uint16, highlightColoured bool) (out string) {
 	if start > end {
 		start, end = end, start
 	}
@@ -507,18 +508,21 @@ func (c *Core) memoryDump(start, end, highlight uint16, highlightColoured bool) 
 				if highlightColoured {
 					out += "\033[33m"
 				}
-				out += "["
-			} else {
-				out += " "
-			}
-			out += fmt.Sprintf("%02x", c.Memory[point+i])
-			if point+i == highlight {
-				out += "]"
+
+				out += fmt.Sprintf("[%02x]", c.Memory[point+i])
+
 				if highlightColoured {
 					out += "\033[0m"
 				}
+			} else {
+				if point+i-1 == highlight && ((point+i-1)&0xF0 == (point+i)&0xF0) {
+					out += fmt.Sprintf("%02x", c.Memory[point+i])
+				} else {
+					out += fmt.Sprintf(" %02x", c.Memory[point+i])
+				}
 			}
 		}
+		out += "\n"
 	}
 	return out
 }
@@ -531,13 +535,25 @@ func (c *Core) memoryDump(start, end, highlight uint16, highlightColoured bool) 
 // pointer (for example, if the stack pointer was `B4`, the output starts at
 // address`0x01B0`) and continues to the end of the stack at address `0x01FF`.
 //
-// There are 16 bytes per line in the resulting stack dump, with square brackets
-// added around the value where the stack pointer is actually pointing to. All
-// numbers are in hexadecimal.
+// See `*Core.MemoryDump` for detailed output documentation.
 func (c *Core) StackDump(coloured bool) (out string) {
-	out = "Full Stack:"
-	out = c.memoryDump(0x0100+uint16(c.S), 0x01FF, 0x0100+uint16(c.S), true)
+	out = "Full Stack:\n"
+	out += c.MemoryDump(0x0100+uint16(c.S), 0x01FF, 0x0100+uint16(c.S), coloured)
 
+	return out
+}
+
+// Returns the memory dump for printing to console, or any other human-readable
+// logging format. If coloured is true, it adds characters to colour the output
+// for terminals, which will not be supported by Windows out of the box.
+//
+// The output is a general memory output, starting at the high nibble of the
+// program counter - 48 bytes, continuing until the program counter + 16 bytes.
+//
+// See `*Core.MemoryDump` for detailed output documentation.
+func (c *Core) ProgramCounterDump(coloured bool) (out string) {
+	out = "Around PC:\n"
+	out += c.MemoryDump(c.PC-0x31, c.PC+0x11, c.PC, coloured)
 	return out
 }
 
@@ -547,5 +563,5 @@ func (c *Core) StackDump(coloured bool) (out string) {
 // short the processor state is outputted, followed by a dump of the stack starting
 // at the stack pointer.
 func (c *Core) CompleteDump(coloured bool) string {
-	return c.StateDump() + "\n\n" + c.StackDump(coloured)
+	return c.StateDump() + "\n" + c.StackDump(coloured) + "\n" + c.ProgramCounterDump(coloured)
 }
