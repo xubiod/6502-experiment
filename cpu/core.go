@@ -495,9 +495,11 @@ func (c *Core) StackDump(coloured bool) (out string) {
 	out = "Full Stack:"
 	var point uint16 = 0x0100 + (uint16(c.S & 0xF0))
 	var i uint16
-	for ; point < 0x01FF; point += 16 {
+	var width uint16 = 16 // 8 is a good smaller width
+
+	for ; point < 0x01FF; point += width {
 		out += fmt.Sprintf("\n\t0x%04X |", point)
-		for i = 0; i < 16; i++ {
+		for i = 0; i < width; i++ {
 			if point+i == 0x0100+uint16(c.S) {
 				if coloured {
 					out += "\033[33m"
