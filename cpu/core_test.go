@@ -1,6 +1,8 @@
 package cpu
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestExists(t *testing.T) {
 	voids := map[byte]uint8{
@@ -108,6 +110,7 @@ func TestResetRoutine(t *testing.T) {
 	if c.PC != 0x020E {
 		t.Errorf("program counter not 20E, was \"%1X\"", c.PC)
 	}
+	t.Log("\n" + c.CompleteDump())
 }
 
 func TestArithmeticADC(t *testing.T) {
@@ -157,6 +160,7 @@ func TestArithmeticADC(t *testing.T) {
 		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
 			t.Errorf("adc fail - (%1x + %1x) - V flag\texpected %1x\tgot %1x", left, right, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
+		t.Log("\n" + c.CompleteDump())
 	}
 }
 
@@ -211,6 +215,7 @@ func TestDecimalADC(t *testing.T) {
 		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
 			t.Errorf("adc decimal fail - (%1x + %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
+		t.Log("\n" + c.CompleteDump())
 	}
 }
 
@@ -264,6 +269,7 @@ func TestArithmeticSBC(t *testing.T) {
 		if c.Flags&FLAG_OVERFLOW != overflow__t[idx] {
 			t.Errorf("sbc fail - (%1x - %1x) - V flag\texpected %1x\tgot %1x", right, left, overflow__t[idx], c.Flags&FLAG_OVERFLOW)
 		}
+		t.Log("\n" + c.CompleteDump())
 	}
 }
 
@@ -318,7 +324,22 @@ func TestDecimalSBC(t *testing.T) {
 		if c.Flags&FLAG_NEGATIVE != negative__t[idx] {
 			t.Errorf("sbc decimal fail - (M: %1x; A: %1x) - N flag\texpected %1x\tgot %1x", left, right, negative__t[idx], c.Flags&FLAG_NEGATIVE)
 		}
+		t.Log("\n" + c.CompleteDump())
 	}
+}
+
+func TestGeneralStackOps(t *testing.T) {
+	// var prg []byte
+
+	// c := NewCore()
+	// asm := assembler.New()
+
+	// prg, _ = asm.Parse("LDX #$01\n" + strings.Repeat("TXA\nPHA\nINX\n", 32))
+
+	// stdProcedure(c, prg)
+
+	// // incomplete test
+	// t.Fail()
 }
 
 // Writes reset procedure followed by the given program. Goes into a standard execution

@@ -2,6 +2,7 @@ package cpu
 
 import (
 	"errors"
+	"fmt"
 )
 
 // A Core is the main data structure of the emulator. It holds its own memory,
@@ -138,6 +139,12 @@ type CoreFeatureFlags struct {
 	//
 	// This is defaulted to `false`.
 	EnableCMOSInstructions bool
+
+	// Prints to console whenever a `BRK` is encountered. See `*Core.CompleteDump()`
+	// for more about what is printed to console.
+	//
+	// This is defaulted to true.
+	ConsoleOutOnBreak bool
 }
 
 var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
@@ -147,6 +154,7 @@ var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
 	NMOSDecimalModeFlagBug:          true,
 	IncrementPCOnInvalidInstruction: false,
 	EnableCMOSInstructions:          false,
+	ConsoleOutOnBreak:               true,
 }
 
 const (
@@ -448,4 +456,63 @@ func (c *Core) Write(what []byte) (n int) {
 		c.writingPointer++
 	}
 	return
+}
+
+// Returns the processor state for printing to console, or any other human-readable
+// logging format.
+//
+// The program counter, stack pointer, accumulator, X, and Y registers are printed
+// as hexadecimal. The flags are presented as appropriate letters, with uppercase
+// meaning set.
+//
+// The general flag letters are standard with other 6502 emulators:
+//
+//	Negative, oVerflow, Break, Decimal, Interrupt disable, Zero, Carry
+func (c *Core) StateDump() (out string) {
+	out = fmt.Sprintf("PC: %04x | S: %02x | A: %02x | X: %02x | Y: %02x | Fl: ", c.PC, c.S, c.A, c.X, c.Y)
+	for idx, chr := range "nv-bdizc" {
+		realRune := chr
+		if c.Flags<<idx&0b10000000 > 0 && chr != '-' {
+			realRune -= 32
+		}
+		out += string(realRune)
+	}
+	return
+}
+
+// Returns the stack dump for printing to console, or any other human-readable
+// logging format.
+//
+// The output is a general memory output, starting at the high nibble of the stack
+// pointer (for example, if the stack pointer was `B4`, the output starts at
+// address`0x01B0`) and continues to the end of the stack at address `0x01FF`.
+//
+// There are 16 bytes per line in the resulting stack dump, with `<` added to the
+// end of the value where the stack pointer is actually pointing to. All numbers
+// are in hexadecimal.
+func (c *Core) StackDump() (out string) {
+	out = "Full Stack:"
+	var point uint16 = 0x0100 + (uint16(c.S & 0xF0))
+	var i uint16
+	for ; point < 0x01FF; point += 16 {
+		out += fmt.Sprintf("\n\t0x%04X | ", point)
+		for i = 0; i < 16; i++ {
+			out += fmt.Sprintf("%02x", c.Memory[point+i])
+			if point+i == 0x0100+uint16(c.S) {
+				out += "<"
+			} else {
+				out += " "
+			}
+		}
+	}
+	return out
+}
+
+// Returns a combination of all the dump methods for a Core as one string.
+//
+// See `*Core.StateDump()` and `*Core.StackDump()` for a complete documentation;
+// in short the processor state is outputted, followed by a dump of the stack
+// starting at the stack pointer.
+func (c *Core) CompleteDump() string {
+	return c.StateDump() + "\n\n" + c.StackDump()
 }

@@ -1,5 +1,7 @@
 package cpu
 
+import "fmt"
+
 // Break - Implied
 func (c *Core) BRK____i() {
 	c.PC += 2
@@ -21,6 +23,10 @@ func (c *Core) BRK____i() {
 	c.Flags = c.Flags | FLAG_BREAK
 
 	c.PC = (uint16(c.Memory[0xFFFF]) << 8) | uint16(c.Memory[0xFFFE])
+
+	if c.Features.ConsoleOutOnBreak {
+		fmt.Println("Break!\n\n" + c.CompleteDump() + "\n")
+	}
 }
 
 // No Operation - Implied
