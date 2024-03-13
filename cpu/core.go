@@ -38,6 +38,12 @@ type Core struct {
 	// CPU instead of a generic 6502.
 	Features CoreFeatureFlags
 
+	// What to do before executing instructions in `StepOnce()`.
+	PreStep func(this *Core)
+
+	// What to do after executing instructions in `StepOnce()`.
+	PostStep func(this *Core)
+
 	// The byte -> implementation map for instructions with no operands.
 	execMapNil map[byte]func()
 
@@ -335,6 +341,11 @@ func (c *Core) prepare() {
 // - If the feature flag is false: if the instruction was a valid NMOS instruction
 // in all returns.
 func (c *Core) StepOnce() (valid, validNMOS, validCMOS bool) {
+
+	if c.PreStep != nil {
+		c.PreStep(c)
+	}
+
 	var fOk, gOk, hOk, iOk, jOk, kOk, lOk bool
 
 	var f, i func(uint8)
@@ -405,6 +416,11 @@ func (c *Core) StepOnce() (valid, validNMOS, validCMOS bool) {
 		}
 	}
 	valid = validCMOS || validNMOS
+
+	if c.PostStep != nil {
+		c.PostStep(c)
+	}
+
 	return
 }
 
