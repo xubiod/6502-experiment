@@ -173,6 +173,11 @@ const (
 	FLAG_NEGATIVE                           // N - Set when the last operation resulted as a negative number as a bit 7 check.
 )
 
+const (
+	HIGHLIGHT_SEGMENT = "\033[33m" // This is a control code for yellow text on default background
+	HIGHLIGHT_CLEAR   = "\033[0m"  // This is a control code to clear the text/background colour to default
+)
+
 // Does the calculations for a zero-page indirect indexed with Y address to get
 // the valid address.
 func (c *Core) indirectZpY(zp byte) (addr uint16) {
@@ -511,13 +516,13 @@ func (c *Core) MemoryDump(start, end, highlight uint16, highlightColoured bool) 
 		for i = 0; i < width; i++ {
 			if point+i == highlight {
 				if highlightColoured {
-					out += "\033[33m"
+					out += HIGHLIGHT_SEGMENT
 				}
 
 				out += fmt.Sprintf("[%02x]", c.Memory[point+i])
 
 				if highlightColoured {
-					out += "\033[0m"
+					out += HIGHLIGHT_CLEAR
 				}
 			} else {
 				if point+i-1 == highlight && ((point+i-1)&0xF0 == (point+i)&0xF0) {
