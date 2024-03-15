@@ -1,7 +1,6 @@
 package cpu
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -340,7 +339,7 @@ func (c *Core) prepare() {
 
 	c.Flags = c.Flags | FLAG_UNUSED
 
-	_ = c.SetWriterPtr(0x0200)
+	_ = c.SetWriterPtr(0x0000)
 }
 
 // Does a single step of execution. If at an invalid instruction, the program
@@ -442,13 +441,12 @@ func (c *Core) StepOnce() (valid, validNMOS, validCMOS bool) {
 	return
 }
 
-// Moves the writer pointer of the Core. As of writing this pointer cannot be set
-// to before `x0200` as the first 512 bytes of memory are the zero page and stack.
+// Moves the writer pointer of the Core.
 func (c *Core) SetWriterPtr(value uint16) (err error) {
-	if value < 0x0200 {
-		err = errors.New("writing pointer must be set in general purpose memory")
-		return
-	}
+	// if value < 0x0200 {
+	// 	err = errors.New("writing pointer must be set in general purpose memory")
+	// 	return
+	// }
 	c.writingPointer = value
 	return
 }
@@ -563,7 +561,7 @@ func (c *Core) StackDump(coloured bool) (out string) {
 // See `*Core.MemoryDump` for detailed output documentation.
 func (c *Core) ProgramCounterDump(coloured bool) (out string) {
 	out = "Around PC:\n"
-	out += c.MemoryDump(c.PC-0x31, c.PC+0x11, c.PC, coloured)
+	out += c.MemoryDump(min(c.PC-0x31, 0), c.PC+0x11, c.PC, coloured)
 	return out
 }
 

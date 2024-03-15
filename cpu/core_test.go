@@ -80,7 +80,7 @@ func TestResetRoutine(t *testing.T) {
 	}
 
 	c.Write(resetRoutine)
-	c.PC = 0x0200
+	c.PC = 0x0000
 
 	// purposefully poison registers
 
@@ -110,7 +110,7 @@ func TestResetRoutine(t *testing.T) {
 		t.Errorf("stack pointer not FF, was \"%1X\"", c.S)
 	}
 
-	if c.PC != 0x020E {
+	if c.PC != 0x000E {
 		t.Errorf("program counter not 20E, was \"%1X\"", c.PC)
 	}
 	t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
@@ -378,7 +378,7 @@ func stdProcedure(c *Core, program []byte) {
 	c.Write(resetRoutine)
 	c.Write(program)
 
-	c.PC = 0x0200
+	c.PC = 0x0000
 	var exe bool = true
 
 	for c.Memory[c.PC] != 0x00 && exe {
