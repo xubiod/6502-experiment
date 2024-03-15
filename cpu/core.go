@@ -561,7 +561,7 @@ func (c *Core) StackDump(coloured bool) (out string) {
 // See `*Core.MemoryDump` for detailed output documentation.
 func (c *Core) ProgramCounterDump(coloured bool) (out string) {
 	out = "Around PC:\n"
-	out += c.MemoryDump(min(c.PC-0x31, 0), c.PC+0x11, c.PC, coloured)
+	out += c.MemoryDump(uint16(max(int32(c.PC)-0x31, 0)), c.PC+0x11, c.PC, coloured)
 	return out
 }
 
