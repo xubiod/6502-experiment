@@ -6,17 +6,19 @@ package cpu
 // This will change the flags in the Core it's run in.
 func (c *Core) cmp_impl(what, with byte) {
 	if what == with {
-		c.Flags = c.Flags & ^FLAG_NEGATIVE
 		c.Flags = c.Flags | FLAG_ZERO
 		c.Flags = c.Flags | FLAG_CARRY
 	} else if what < with {
-		c.Flags = c.Flags | FLAG_NEGATIVE
 		c.Flags = c.Flags & ^FLAG_ZERO
 		c.Flags = c.Flags & ^FLAG_CARRY
 	} else if what > with {
-		c.Flags = c.Flags & ^FLAG_NEGATIVE
 		c.Flags = c.Flags & ^FLAG_ZERO
 		c.Flags = c.Flags | FLAG_CARRY
+	}
+	if (uint16(what)-uint16(with))&0b10000000 > 0 {
+		c.Flags = c.Flags | FLAG_NEGATIVE
+	} else {
+		c.Flags = c.Flags & ^FLAG_NEGATIVE
 	}
 }
 
