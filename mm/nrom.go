@@ -9,9 +9,10 @@ type MemMapperNROM128 struct {
 }
 
 func (m *MemMapperNROM128) SwapCpu(on *cpu.Core) bool {
-	copy(on.Memory[0x8000:0xC000], m.PrgRom0[:])
-	copy(on.Memory[0xC000:], m.PrgRom0[:])
-	return true
+	n := 0
+	n += copy(on.Memory[0x8000:0xC000], m.PrgRom0[:])
+	n += copy(on.Memory[0xC000:], m.PrgRom0[:])
+	return (n == 0x8000)
 }
 
 func (*MemMapperNROM128) StepCpu(along *cpu.Core) bool { return true }
@@ -24,9 +25,10 @@ type MemMapperNROM256 struct {
 }
 
 func (m *MemMapperNROM256) SwapCpu(on *cpu.Core) bool {
-	copy(on.Memory[0x8000:0xC000], m.PrgRom0[:])
-	copy(on.Memory[0xC000:], m.PrgRom1[:])
-	return true
+	n := 0
+	n += copy(on.Memory[0x8000:0xC000], m.PrgRom0[:])
+	n += copy(on.Memory[0xC000:], m.PrgRom1[:])
+	return (n == 0x8000)
 }
 
 func (*MemMapperNROM256) StepCpu(along *cpu.Core) bool { return true }
