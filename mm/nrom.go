@@ -6,6 +6,8 @@ import "xubiod/6502-experiment/cpu"
 type MemMapperNROM128 struct {
 	PrgRam  []byte
 	PrgRom0 [0x4000]byte
+
+	ChrRom0 [0x2000]byte
 }
 
 func (m *MemMapperNROM128) SwapCpu(on *cpu.Core) bool {
@@ -22,6 +24,8 @@ type MemMapperNROM256 struct {
 	PrgRam  []byte
 	PrgRom0 [0x4000]byte
 	PrgRom1 [0x4000]byte
+
+	ChrRom0 [0x2000]byte
 }
 
 func (m *MemMapperNROM256) SwapCpu(on *cpu.Core) bool {
