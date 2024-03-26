@@ -16,8 +16,7 @@ type Runner struct {
 
 func New(cpu *cpu.Core, mm *mm.MemMapper) (*Runner, error) {
 	if cpu == nil {
-		err := errors.New("core cannot be nil")
-		return nil, err
+		return nil, errors.New("core cannot be nil")
 	}
 	return &Runner{CPU: cpu, MemMapper: mm}, nil
 }
