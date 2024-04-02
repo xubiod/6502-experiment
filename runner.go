@@ -23,7 +23,7 @@ func New(cpu *cpu.Core, mm *mm.MemMapper) (*Runner, error) {
 
 func (r *Runner) StepOnce() (valid bool) {
 	if r.CPU != nil {
-		valid, _, _ = r.CPU.StepOnce()
+		valid = r.CPU.StepOnce()
 	}
 	if valid && r.MemMapper != nil {
 		valid = valid && (*r.MemMapper).StepCpu(r.CPU)

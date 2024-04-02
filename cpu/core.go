@@ -345,19 +345,9 @@ func (c *Core) prepare() {
 // Does a single step of execution. If at an invalid instruction, the program
 // counter will not increment.
 //
-// Returns are structured as valid for any, valid for NMOS, and valid CMOS in that
-// order.
-//
-// Returns are dependent on the `IncrementPCOnInvalidInstruction` feature flag:
-//
-// - If the feature flag is true: if the instruction was a valid NMOS instruction,
-// and if it was a valid CMOS instruction which includes the NOPs for future use.
-// CMOS instructions with `EnableCMOSInstructions` will return with an invalid
-// NMOS execution but valid CMOS execution (`true, false, true`).
-//
-// - If the feature flag is false: if the instruction was a valid NMOS instruction
-// in all returns.
-func (c *Core) StepOnce() (valid, validNMOS, validCMOS bool) {
+// Returns true if the instruction was valid.
+func (c *Core) StepOnce() (valid bool) {
+	var validNMOS, validCMOS bool
 
 	if c.PreStep != nil {
 		c.PreStep(c)
