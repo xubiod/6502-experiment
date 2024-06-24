@@ -506,7 +506,7 @@ func (a *Assembler) PreprocessAndParse(prg string) (out []byte, err error) {
 // with no modifications to it.
 //
 // This reads from `opTable` but does not modify it. The value at the `out` pointer
-// **will be overwritten**, and the value at the `mp` pointer is incremented twice.
+// **will be overwritten**, and the value at the `mp` pointer is incremented thrice.
 //
 // Output is the opcode, the low byte of the operand, and the high byte of the
 // operand, in that order.
