@@ -501,7 +501,7 @@ func (c *Core) MemoryDump(start, end, highlight uint16, highlightColoured bool) 
 
 	for ; point < end; point += width {
 		out += fmt.Sprintf("0x%04X |", point)
-		for i = 0; i < width; i++ {
+		for i = range width {
 			if point+i == highlight {
 				if highlightColoured {
 					out += HIGHLIGHT_SEGMENT
