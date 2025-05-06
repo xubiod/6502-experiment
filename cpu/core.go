@@ -449,7 +449,7 @@ func (c *Core) Write(what []byte) (n int) {
 	limit := 0xFFFF - c.writingPointer
 	n = min(int(limit), len(what))
 
-	for i := 0; i < n; i++ {
+	for i := range n {
 		c.Memory[c.writingPointer] = what[i]
 		c.writingPointer++
 	}
