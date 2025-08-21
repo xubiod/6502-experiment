@@ -405,17 +405,16 @@ func (c *Core) StepOnce() (valid bool) {
 		validCMOS = false
 
 		if c.Features.IncrementPCOnInvalidInstruction {
+			oldpc := c.PC
 			switch inst & 0x0F {
 			case 0x03, 0x0B:
 				c.PC += 1
-				validCMOS = true
 			case 0x02, 0x04:
 				c.PC += 2
-				validCMOS = true
 			case 0x0C:
 				c.PC += 3
-				validCMOS = true
 			}
+			validCMOS = c.PC != oldpc
 		}
 	}
 	valid = validCMOS || validNMOS
