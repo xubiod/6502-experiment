@@ -367,13 +367,6 @@ func (c *Core) StepOnce() (valid bool) {
 	g, gOk = c.execMapShort[inst]
 	h, hOk = c.execMapNil[inst]
 
-	if c.Features.EnableCMOSInstructions {
-		i, iOk = c.execMapByteCMOS[inst]
-		j, jOk = c.execMapShortCMOS[inst]
-		k, kOk = c.execMapNilCMOS[inst]
-		l, lOk = c.execMapBitBranchCMOS[inst]
-	}
-
 	switch {
 	case fOk:
 		f(c.Memory[c.PC+1])
@@ -384,39 +377,47 @@ func (c *Core) StepOnce() (valid bool) {
 	case hOk:
 		h()
 
-	case iOk:
-		validNMOS = false
-		i(c.Memory[c.PC+1])
-
-	case jOk:
-		validNMOS = false
-		j((uint16(c.Memory[c.PC+1]) << 8) | uint16(c.Memory[c.PC+2]))
-
-	case kOk:
-		validNMOS = false
-		k()
-
-	case lOk:
-		validNMOS = false
-		l(c.Memory[c.PC+1], c.Memory[c.PC+2])
-
 	default:
 		validNMOS = false
-		validCMOS = false
+	}
 
-		if c.Features.IncrementPCOnInvalidInstruction {
-			oldpc := c.PC
-			switch inst & 0x0F {
-			case 0x03, 0x0B:
-				c.PC += 1
-			case 0x02, 0x04:
-				c.PC += 2
-			case 0x0C:
-				c.PC += 3
-			}
-			validCMOS = c.PC != oldpc
+	if c.Features.EnableCMOSInstructions {
+		i, iOk = c.execMapByteCMOS[inst]
+		j, jOk = c.execMapShortCMOS[inst]
+		k, kOk = c.execMapNilCMOS[inst]
+		l, lOk = c.execMapBitBranchCMOS[inst]
+
+		switch {
+		case iOk:
+			i(c.Memory[c.PC+1])
+
+		case jOk:
+			j((uint16(c.Memory[c.PC+1]) << 8) | uint16(c.Memory[c.PC+2]))
+
+		case kOk:
+			k()
+
+		case lOk:
+			l(c.Memory[c.PC+1], c.Memory[c.PC+2])
+
+		default:
+			validCMOS = false
 		}
 	}
+
+	if c.Features.IncrementPCOnInvalidInstruction {
+		oldpc := c.PC
+		switch inst & 0x0F {
+		case 0x03, 0x0B:
+			c.PC += 1
+		case 0x02, 0x04:
+			c.PC += 2
+		case 0x0C:
+			c.PC += 3
+		}
+		validCMOS = c.PC != oldpc
+	}
+
 	valid = validCMOS || validNMOS
 
 	if c.PostStep != nil {
