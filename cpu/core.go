@@ -379,9 +379,7 @@ func (c *Core) StepOnce() (valid bool) {
 		f(c.Memory[c.PC+1])
 
 	case gOk:
-		hi, lo := c.Memory[c.PC+1], c.Memory[c.PC+2]
-		v := (uint16(hi) << 8) | uint16(lo)
-		g(v)
+		g((uint16(c.Memory[c.PC+1]) << 8) | uint16(c.Memory[c.PC+2]))
 
 	case hOk:
 		h()
@@ -392,9 +390,7 @@ func (c *Core) StepOnce() (valid bool) {
 
 	case jOk:
 		validNMOS = false
-		hi, lo := c.Memory[c.PC+1], c.Memory[c.PC+2]
-		v := (uint16(hi) << 8) | uint16(lo)
-		j(v)
+		j((uint16(c.Memory[c.PC+1]) << 8) | uint16(c.Memory[c.PC+2]))
 
 	case kOk:
 		validNMOS = false
