@@ -81,10 +81,7 @@ func (c *Core) BVS__rel(raw uint8) {
 // Branch Always - Relative
 //
 // CMOS 65c02
-func (c *Core) BRA__rel(raw uint8) {
-	c.PC += 2
-	c.PC += branchVal(raw)
-}
+func (c *Core) BRA__rel(raw uint8) { c.PC += 2 + branchVal(raw) }
 
 // Branch if Bit Cleared - Func Generator
 //

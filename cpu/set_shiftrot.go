@@ -4,15 +4,13 @@ package cpu
 //
 // This will change the flags of the Core it's run in.
 func (c *Core) asl_impl(loc *byte) {
-	var shouldCarry = *loc & 0b10000000
-
-	*loc = (*loc << 1) & 0xFE
-
-	if shouldCarry > 0 {
+	if *loc&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_CARRY
 	} else {
 		c.Flags = c.Flags & ^FLAG_CARRY
 	}
+
+	*loc = (*loc << 1) & 0xFE
 
 	if *loc&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
@@ -31,15 +29,13 @@ func (c *Core) asl_impl(loc *byte) {
 //
 // This will change the flags of the Core it's run in.
 func (c *Core) lsr_impl(loc *byte) {
-	var shouldCarry = *loc & 0b00000001
-
-	*loc = (*loc >> 1) & 0x7F
-
-	if shouldCarry > 0 {
+	if *loc&0b00000001 > 0 {
 		c.Flags = c.Flags | FLAG_CARRY
 	} else {
 		c.Flags = c.Flags & ^FLAG_CARRY
 	}
+
+	*loc = (*loc >> 1) & 0x7F
 
 	if *loc&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
@@ -58,15 +54,13 @@ func (c *Core) lsr_impl(loc *byte) {
 //
 // This will change the flags of the Core it's run in.
 func (c *Core) rol_impl(loc *byte) {
-	var futureCarry = *loc & 0b10000000
-
-	*loc = ((*loc << 1) & 0xFE) | (c.Flags & FLAG_CARRY)
-
-	if futureCarry > 0 {
+	if *loc&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_CARRY
 	} else {
 		c.Flags = c.Flags & ^FLAG_CARRY
 	}
+
+	*loc = ((*loc << 1) & 0xFE) | (c.Flags & FLAG_CARRY)
 
 	if *loc&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE

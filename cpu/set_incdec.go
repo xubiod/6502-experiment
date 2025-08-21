@@ -7,15 +7,13 @@ package cpu
 func (c *Core) inc_impl(where *byte) {
 	*where++
 
-	r := *where
-
-	if r == 0 {
+	if (*where) == 0 {
 		c.Flags = c.Flags | FLAG_ZERO
 	} else {
 		c.Flags = c.Flags & ^FLAG_ZERO
 	}
 
-	if r&0b10000000 > 0 {
+	if (*where)&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
 	} else {
 		c.Flags = c.Flags & ^FLAG_NEGATIVE
@@ -29,15 +27,13 @@ func (c *Core) inc_impl(where *byte) {
 func (c *Core) dec_impl(where *byte) {
 	*where--
 
-	r := *where
-
-	if r == 0 {
+	if (*where) == 0 {
 		c.Flags = c.Flags | FLAG_ZERO
 	} else {
 		c.Flags = c.Flags & ^FLAG_ZERO
 	}
 
-	if r&0b10000000 > 0 {
+	if (*where)&0b10000000 > 0 {
 		c.Flags = c.Flags | FLAG_NEGATIVE
 	} else {
 		c.Flags = c.Flags & ^FLAG_NEGATIVE
