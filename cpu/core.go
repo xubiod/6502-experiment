@@ -352,7 +352,7 @@ func (c *Core) prepare() {
 //
 // Returns true if the instruction was valid.
 func (c *Core) StepOnce() (valid bool) {
-	var validNMOS, validCMOS bool
+	var validNMOS, validCMOS bool = false, false
 
 	if c.PreStep != nil {
 		c.PreStep(c)
@@ -373,7 +373,7 @@ func (c *Core) StepOnce() (valid bool) {
 	var l func(uint8, uint8)
 
 	inst := c.Memory[c.PC]
-	valid, validNMOS, validCMOS = true, true, true
+	validNMOS = true
 
 	f, fOk = c.execMapByte[inst]
 	g, gOk = c.execMapShort[inst]
@@ -394,6 +394,8 @@ func (c *Core) StepOnce() (valid bool) {
 	}
 
 	if c.Features.EnableCMOSInstructions {
+		validCMOS = true
+
 		i, iOk = c.execMapByteCMOS[inst]
 		j, jOk = c.execMapShortCMOS[inst]
 		k, kOk = c.execMapNilCMOS[inst]
