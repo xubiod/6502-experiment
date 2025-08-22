@@ -38,6 +38,8 @@ type Core struct {
 	// CPU instead of a generic 6502.
 	Features CoreFeatureFlags
 
+	Trace []uint16
+
 	// What to do before executing instructions in `StepOnce()`.
 	PreStep func(this *Core)
 
@@ -149,6 +151,8 @@ type CoreFeatureFlags struct {
 	//
 	// This is defaulted to true.
 	ConsoleOutOnBreak bool
+
+	Traceback uint8
 }
 
 var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
@@ -159,6 +163,7 @@ var defaultFeatures CoreFeatureFlags = CoreFeatureFlags{
 	IncrementPCOnInvalidInstruction: false,
 	EnableCMOSInstructions:          false,
 	ConsoleOutOnBreak:               true,
+	Traceback:                       0,
 }
 
 const (
@@ -351,6 +356,13 @@ func (c *Core) StepOnce() (valid bool) {
 
 	if c.PreStep != nil {
 		c.PreStep(c)
+	}
+
+	if c.Features.Traceback > 0 {
+		c.Trace = append(c.Trace, c.PC)
+		if len(c.Trace) > int(c.Features.Traceback) {
+			c.Trace = c.Trace[1:]
+		}
 	}
 
 	var fOk, gOk, hOk, iOk, jOk, kOk, lOk bool
@@ -551,11 +563,24 @@ func (c *Core) ProgramCounterDump(coloured bool) (out string) {
 	return out
 }
 
+func (c *Core) TracebackDumps(coloured bool) (out string) {
+	for idx, tracePc := range c.Trace {
+		out += fmt.Sprintf("Trace %2d - PC: [%04x]", idx, tracePc)
+		if idx == 0 || (idx > 0 && c.Trace[idx-1] != tracePc) {
+			out += "\n" + c.MemoryDump(uint16(max(int32(tracePc)-0x11, 0)), tracePc+0x11, tracePc, coloured)
+		} else {
+			out += " ..same as last"
+		}
+		out += "\n"
+	}
+	return out
+}
+
 // Returns a combination of all the dump methods for a Core as one string.
 //
 // See `*Core.StateDump`, `*Core.StackDump`, and `*Core.ProgramCounterDump` for
 // a complete documentation; in short the processor state is outputted, followed
 // by a dump of the stack starting at the stack pointer.
 func (c *Core) CompleteDump(coloured bool) string {
-	return c.StateDump() + "\n" + c.StackDump(coloured) + "\n" + c.ProgramCounterDump(coloured)
+	return c.StateDump() + "\n" + c.StackDump(coloured) + "\n" + c.ProgramCounterDump(coloured) + "\n\n" + c.TracebackDumps(coloured)
 }
