@@ -38,7 +38,8 @@ type Core struct {
 	// CPU instead of a generic 6502.
 	Features CoreFeatureFlags
 
-	Trace []uint16
+	// Traceback state slice for keeping tracebacks if enabled.
+	Trace []TracebackState
 
 	// What to do before executing instructions in `StepOnce()`.
 	PreStep func(this *Core)
@@ -77,6 +78,18 @@ type Core struct {
 	execMapShortCMOS map[byte]func(uint16)
 
 	writingPointer uint16 // The pointer to writing to memory with `*Core.Write()`.
+}
+
+// A TracebackState is the data structure for tracebacks. If tracebacks are enabled,
+// the processor flags and registers are saved every step, only up to how many
+// tracebacks are requested in CoreFeatureFlags.
+type TracebackState struct {
+	A     byte   // A - accumulator
+	X     byte   // X
+	Y     byte   // Y
+	PC    uint16 // PC - program counter
+	S     uint8  // S - stack pointer; starts at `0x01FF` and grows down to `0x0100`
+	Flags byte   // P - status, flags
 }
 
 // A struct for a set of feature flags that can be changed to have the emulator
@@ -152,6 +165,8 @@ type CoreFeatureFlags struct {
 	// This is defaulted to true.
 	ConsoleOutOnBreak bool
 
+	// Tracebacks for processor dumping. If non-zero, it saves traceback states
+	// up to that number. If zero, none are kept.
 	Traceback uint8
 }
 
@@ -364,7 +379,14 @@ func (c *Core) StepOnce() (valid bool) {
 	}
 
 	if c.Features.Traceback > 0 {
-		c.Trace = append(c.Trace, c.PC)
+		c.Trace = append(c.Trace, TracebackState{
+			A:     c.A,
+			X:     c.X,
+			Y:     c.Y,
+			PC:    c.PC,
+			S:     c.S,
+			Flags: c.Flags,
+		})
 		if len(c.Trace) > int(c.Features.Traceback) {
 			c.Trace = c.Trace[1:]
 		}
@@ -570,11 +592,26 @@ func (c *Core) ProgramCounterDump(coloured bool) (out string) {
 	return out
 }
 
+// Returns a dump of all traceback states, and some memory around the captured
+// program counter for deeper debugging.
+//
+// See `*Core.MemoryDump` for detailed output documentation.
 func (c *Core) TracebackDumps(coloured bool) (out string) {
-	for idx, tracePc := range c.Trace {
-		out += fmt.Sprintf("Trace %2d - PC: [%04x]", idx, tracePc)
-		if idx == 0 || (idx > 0 && c.Trace[idx-1] != tracePc) {
-			out += "\n" + c.MemoryDump(uint16(max(int32(tracePc)-0x11, 0)), tracePc+0x11, tracePc, coloured)
+	for idx, traceState := range c.Trace {
+		out += fmt.Sprintf("Trace %2d - ", idx)
+		out += fmt.Sprintf("PC: %04x | S: %02x | A: %02x | X: %02x | Y: %02x | Fl: ",
+			traceState.PC, traceState.S, traceState.A, traceState.X, traceState.Y)
+
+		for idx, chr := range "nv-bdizc" {
+			realRune := chr
+			if traceState.Flags<<idx&0b10000000 > 0 && chr != '-' {
+				realRune -= 32
+			}
+			out += string(realRune)
+		}
+
+		if idx == 0 || (idx > 0 && c.Trace[idx-1] != traceState) {
+			out += "\n" + c.MemoryDump(uint16(max(int32(traceState.PC)-0x11, 0)), traceState.PC+0x11, traceState.PC, coloured)
 		} else {
 			out += " ..same as last"
 		}
