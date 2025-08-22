@@ -1,6 +1,7 @@
 package cpu
 
 import (
+	"os"
 	"runtime"
 	"strings"
 	"testing"
@@ -352,6 +353,58 @@ func TestGeneralStackOps(t *testing.T) {
 	}
 
 	t.Log("\n" + c.CompleteDump(runtime.GOOS != "windows"))
+}
+
+func TestFromSuite(t *testing.T) {
+	c := NewCore()
+	c.Features.ConsoleOutOnBreak = true
+	c.Features.Traceback = 16
+
+	testsuite, err := os.ReadFile("testsuite/6502_functional_test.bin")
+
+	if err != nil {
+		t.Fatalf("testsuite could not load\n%s", err)
+	}
+
+	writeCount := c.Write(testsuite)
+
+	if writeCount != len(testsuite) {
+		t.Logf("testsuite couldn't fit entirely in core\nwrote %d bytes instead of %d bytes, continuing anyway..", writeCount, len(testsuite))
+	}
+
+	c.PC = 0x0400
+	var exe bool = true
+	var lastpc uint16 = 0x0000
+
+	var pcmoved bool = true
+	var pcmovedcounter uint8 = 16
+
+	for exe {
+		exe = c.StepOnce()
+
+		if !exe {
+			t.Log("invalid instruction encountered!!!")
+			t.Fail()
+		}
+
+		pcmoved = lastpc != c.PC
+
+		if !pcmoved {
+			// t.Log("program counter hasn't moved")
+			pcmovedcounter--
+			if pcmovedcounter == 0 {
+				t.Log("pc hasn't moved in a while, calling off execution")
+				t.Fail()
+				exe = false
+			}
+		} else {
+			pcmovedcounter = 16
+		}
+
+		lastpc = c.PC
+	}
+
+	t.Log(c.CompleteDump(runtime.GOOS != "windows"))
 }
 
 // Writes reset procedure followed by the given program. Goes into a standard execution
