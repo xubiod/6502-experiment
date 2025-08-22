@@ -344,6 +344,11 @@ func (c *Core) prepare() {
 
 	c.Flags = c.Flags | FLAG_UNUSED
 
+	c.A = 0x00
+	c.S = 0xFF
+	c.X = 0x00
+	c.Y = 0x00
+
 	_ = c.SetWriterPtr(0x0000)
 }
 
