@@ -454,7 +454,7 @@ func (c *Core) SetWriterPtr(value uint16) (err error) {
 //
 // This uses the `*Core.writingPointer` which can be moved with `*Core.SetWriterPtr`.
 func (c *Core) Write(what []byte) (n int) {
-	limit := 0xFFFF - c.writingPointer
+	limit := 0x10000 - int(c.writingPointer)
 	n = min(int(limit), len(what))
 
 	for i := range n {
